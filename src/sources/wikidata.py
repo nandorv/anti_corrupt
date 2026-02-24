@@ -331,24 +331,35 @@ class WikidataClient:
                 seen.setdefault(p.id, p)
         return list(seen.values())
 
-    def fetch_governors(self, limit: int = 300, since_year: Optional[int] = None) -> list[Politician]:
+    def _fetch_by_position_label(
+        self,
+        label_regex: str,
+        role_name: str,
+        institution: str,
+        tags: list[str],
+        limit: int = 500,
+        since_year: Optional[int] = None,
+        exclude_regex: Optional[str] = None,
+    ) -> list[Politician]:
         """
-        Fetch Brazilian state governors.
+        Generic position fetcher: matches any P39 position whose Portuguese label
+        contains ``label_regex`` (case-insensitive REGEX).
 
-        Uses a UNION of P31/P279 property paths so we catch all 27 state-specific
-        Wikidata governor positions (e.g. "Governador de São Paulo" Q7546782), not
-        just the generic Q5055441 which very few entries use directly.
+        Works for any role where the Wikidata position entity carries a
+        recognisable keyword in its pt label — e.g. "governador", "prefeito",
+        "ministro de estado", "tribunal de contas da uni".
 
-        No date filter by default — Wikidata rarely records P580 for governors.
-        Pass since_year to restrict (unreliable unless data is complete).
+        Pass ``exclude_regex`` to additionally filter out positions whose label
+        also matches that pattern (e.g. to exclude STF/TCU from minister results).
         """
         date_filter = (
             f'FILTER(!BOUND(?startDate) || ?startDate >= "{since_year}-01-01"^^xsd:dateTime)'
             if since_year else ""
         )
-        # Match any P39 position whose Portuguese label contains "governador"
-        # (covers all 27 state-specific positions like "Governador do Estado de SP"
-        # as well as the generic Q5055441 — avoids QID guessing entirely).
+        exclude_clause = (
+            f' && !REGEX(?posLabel, "{exclude_regex}", "i")'
+            if exclude_regex else ""
+        )
         sparql = f"""
         SELECT DISTINCT ?person ?personLabel ?birthDate ?birthPlaceLabel
                         ?partyLabel ?startDate ?endDate ?description
@@ -357,7 +368,7 @@ class WikidataClient:
                   p:P39 ?stmt .
           ?stmt ps:P39 ?position .
           ?position rdfs:label ?posLabel .
-          FILTER(LANG(?posLabel) = "pt" && REGEX(?posLabel, "governador", "i"))
+          FILTER(LANG(?posLabel) = "pt" && REGEX(?posLabel, "{label_regex}", "i"){exclude_clause})
           OPTIONAL {{ ?stmt pq:P580 ?startDate }}
           OPTIONAL {{ ?stmt pq:P582 ?endDate }}
           {date_filter}
@@ -391,18 +402,18 @@ class WikidataClient:
                     birth_place=self._val(b, "birthPlaceLabel"),
                     party=self._val(b, "partyLabel"),
                     roles=[],
-                    tags=["governador", "executivo-estadual"],
+                    tags=list(tags),
                     sources=[f"https://www.wikidata.org/wiki/{wid}"],
                     summary=self._val(b, "description"),
                 )
             start = self._date(self._val(b, "startDate"))
             end = self._date(self._val(b, "endDate"))
             existing = {(r.start_date, r.institution) for r in politicians[wid].roles}
-            if (start, "governo-estadual") not in existing:
+            if (start, institution) not in existing:
                 politicians[wid].roles.append(
                     PoliticianRole(
-                        role="Governador",
-                        institution="governo-estadual",
+                        role=role_name,
+                        institution=institution,
                         start_date=start,
                         end_date=end,
                     )
@@ -410,6 +421,122 @@ class WikidataClient:
 
         time.sleep(_SLEEP)
         return list(politicians.values())
+
+    def fetch_governors(self, limit: int = 300, since_year: Optional[int] = None) -> list[Politician]:
+        """
+        Fetch Brazilian state governors.
+        Matches all 27 state-specific governor positions via Portuguese label regex.
+        No date filter by default — Wikidata rarely records P580 for governors.
+        """
+        return self._fetch_by_position_label(
+            "governador", "Governador", "governo-estadual",
+            ["governador", "executivo-estadual"],
+            limit=limit, since_year=since_year,
+        )
+
+    def fetch_mayors(self, limit: int = 5500, since_year: Optional[int] = None) -> list[Politician]:
+        """
+        Fetch Brazilian mayors (prefeitos).
+        Brazil has ~5,570 municipalities; pass since_year=2024 for the current
+        mandate (elected Oct 2024, took office Jan 2025).
+        """
+        return self._fetch_by_position_label(
+            "prefeito", "Prefeito", "prefeitura",
+            ["prefeito", "executivo-municipal"],
+            limit=limit, since_year=since_year,
+        )
+
+    def fetch_government_ministers(self, limit: int = 1000) -> list[Politician]:
+        """
+        Fetch Brazilian government ministers (Ministros de Estado), all administrations.
+
+        Uses a position-first SPARQL strategy: first enumerate the ~40 distinct
+        ministerial position entities whose PT label starts with "ministro" (e.g.
+        "Ministro da Saúde do Brasil"), then find all people who held those
+        positions.  This is far faster than scanning all P27=Q155 nationals.
+
+        Covers: Ministro da Saúde, Fazenda, Educação, Defesa, Casa Civil, etc.
+        Excludes STF / TCU positions (handled by their own fetchers).
+        """
+        sparql = f"""
+        SELECT DISTINCT ?person ?personLabel ?birthDate ?birthPlaceLabel
+                        ?partyLabel ?startDate ?endDate ?description
+        WHERE {{
+          # ── 1. enumerate ministerial position entities ──────────────
+          ?position rdfs:label ?posLabel .
+          FILTER(LANG(?posLabel) = "pt"
+              && REGEX(?posLabel, "^ministro", "i")
+              && !REGEX(?posLabel, "supremo tribunal|tribunal de contas", "i"))
+          # ── 2. find people who held those positions ──────────────────
+          ?person p:P39 ?stmt .
+          ?stmt ps:P39 ?position .
+          # ── 3. restrict to Brazilian nationals ──────────────────────
+          ?person wdt:P27 wd:Q155 .
+          OPTIONAL {{ ?stmt pq:P580 ?startDate }}
+          OPTIONAL {{ ?stmt pq:P582 ?endDate }}
+          OPTIONAL {{ ?person wdt:P569 ?birthDate }}
+          OPTIONAL {{ ?person wdt:P19 ?birthPlace }}
+          OPTIONAL {{ ?person wdt:P102 ?party }}
+          OPTIONAL {{
+            ?person schema:description ?description
+            FILTER(LANG(?description) = "pt")
+          }}
+          SERVICE wikibase:label {{ bd:serviceParam wikibase:language "pt,en" }}
+        }}
+        ORDER BY ?personLabel
+        LIMIT {limit}
+        """
+        bindings = self._query(sparql)
+        institution = "governo-federal"
+        tags = ["ministro", "executivo", "governo-federal"]
+        politicians: dict[str, "Politician"] = {}
+        for b in bindings:
+            wid = self._wid(self._val(b, "person") or "")
+            if not wid:
+                continue
+            name = self._val(b, "personLabel") or ""
+            if self._is_qid(name):
+                continue
+            if wid not in politicians:
+                politicians[wid] = Politician(
+                    wikidata_id=wid,
+                    name=name,
+                    birth_date=self._date(self._val(b, "birthDate")),
+                    birth_place=self._val(b, "birthPlaceLabel"),
+                    party=self._val(b, "partyLabel"),
+                    roles=[],
+                    tags=list(tags),
+                    sources=[f"https://www.wikidata.org/wiki/{wid}"],
+                    summary=self._val(b, "description"),
+                )
+            start = self._date(self._val(b, "startDate"))
+            end = self._date(self._val(b, "endDate"))
+            existing = {(r.start_date, r.institution) for r in politicians[wid].roles}
+            if (start, institution) not in existing:
+                politicians[wid].roles.append(
+                    PoliticianRole(
+                        role="Ministro de Estado",
+                        institution=institution,
+                        start_date=start,
+                        end_date=end,
+                    )
+                )
+        time.sleep(_SLEEP)
+        return list(politicians.values())
+
+    def fetch_tcu_ministers(self, limit: int = 200) -> list[Politician]:
+        """
+        Fetch TCU ministers (Tribunal de Contas da União), all time.
+        TCU is Brazil's federal audit court; members hold the title "Ministro do TCU".
+        Uses a partial match on "tribunal de contas da uni" to target the federal
+        TCU only (not state-level TCEs).
+        """
+        return self._fetch_by_position_label(
+            "tribunal de contas da uni",
+            "Ministro do TCU", "tcu",
+            ["tcu", "tribunal-contas", "controle-externo"],
+            limit=limit,
+        )
 
     def _fetch_politicians_by_occupation(
         self,

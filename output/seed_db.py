@@ -31,18 +31,20 @@ print(f"Cleared. Stats now: {store.stats()}\n")
 client = WikidataClient(timeout=90)
 
 steps = [
-    # --- Politicians: last 2 mandates (2019+) ---
-    # Deputies and senators serve 4-year terms; governors 4 years.
-    # STF ministers and presidents are few — keep all history.
-    ("Federal Deputies  (since 2019)",   lambda: client.fetch_federal_deputies(limit=600, since_year=2019),  "politicians"),
-    ("Senators          (since 2019)",   lambda: client.fetch_senators(limit=300, since_year=2019),          "politicians"),
-    ("Governors         (all time)",       lambda: client.fetch_governors(limit=300),                          "politicians"),
-    ("Presidents        (all time)",     lambda: client.fetch_presidents(),                                   "politicians"),
-    ("STF Ministers     (all time)",     lambda: client.fetch_stf_ministers(),                                "politicians"),
-    # --- Events: full history, 4 sub-queries, up to 2000 each ---
-    ("Political Events  (all history)",  lambda: client.fetch_political_events(limit=2000),                  "events"),
+    # --- Current mandate only (elected officials change every 4 years) ---
+    ("Federal Deputies  (2023+, current)", lambda: client.fetch_federal_deputies(limit=600, since_year=2023), "politicians"),
+    ("Senators          (2019+, current)", lambda: client.fetch_senators(limit=300, since_year=2019),        "politicians"),  # 2 cohorts: 2019 & 2023
+    ("Governors         (2023+, current)", lambda: client.fetch_governors(limit=100, since_year=2023),       "politicians"),
+    ("Mayors            (2024+, current)", lambda: client.fetch_mayors(limit=5500, since_year=2024),         "politicians"),  # ~5,570 municipalities
+    # --- Key institutions: all history ---
+    ("Presidents        (all time)",       lambda: client.fetch_presidents(),                                 "politicians"),
+    ("STF Ministers     (all time)",       lambda: client.fetch_stf_ministers(),                              "politicians"),
+    ("Gov Ministers     (all time)",       lambda: client.fetch_government_ministers(limit=1000),             "politicians"),
+    ("TCU Ministers     (all time)",       lambda: client.fetch_tcu_ministers(),                              "politicians"),
+    # --- Events: full history, 4 sub-queries ---
+    ("Political Events  (all history)",   lambda: client.fetch_political_events(limit=2000),                 "events"),
     # --- Structure ---
-    ("Legislatures",                     lambda: client.fetch_legislatures(),                                 "legislatures"),
+    ("Legislatures",                      lambda: client.fetch_legislatures(),                               "legislatures"),
 ]
 
 for label, fn, kind in steps:
@@ -70,8 +72,9 @@ print("=" * 60)
 import json
 db = store._db
 print("\nSample by category:")
-for tag, count_expected in [("deputado-federal", 556), ("senador", 200), ("governador", 50),
-                              ("presidente", 10), ("stf", 40)]:
+for tag, count_expected in [("deputado-federal", 450), ("senador", 80), ("governador", 27),
+                              ("prefeito", 2000), ("presidente", 10), ("stf", 40),
+                              ("ministro", 100), ("tcu", 10)]:
     rows = list(db.execute(
         "SELECT name, party, summary FROM politicians WHERE tags LIKE ? LIMIT 3",
         [f"%{tag}%"]

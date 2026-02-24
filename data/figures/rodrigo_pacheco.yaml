@@ -1,0 +1,58 @@
+id: rodrigo-pacheco
+full_name: "Rodrigo Cunha Pacheco"
+birth_date: "1980-08-04"
+birth_place: "Belo Horizonte, MG"
+education:
+  - institution: "Universidade Federal de Minas Gerais (UFMG)"
+    degree: "Bacharelado em Direito"
+    year: 2002
+  - institution: "Pontifícia Universidade Católica de Minas Gerais (PUC-MG)"
+    degree: "Especialização em Direito Empresarial"
+    year: null
+career:
+  - role: "Advogado"
+    institution: "Advocacia privada"
+    start_date: "2003-01-01"
+    end_date: "2010-01-01"
+    description: "Atuou em direito empresarial e tributário."
+  - role: "Deputado Federal"
+    institution: "camara-dos-deputados"
+    start_date: "2011-02-01"
+    end_date: "2019-01-31"
+    description: "Deputado por Minas Gerais pelo DEM (atual União Brasil), reeleito em 2014."
+  - role: "Senador Federal"
+    institution: "senado-federal"
+    start_date: "2019-02-01"
+    end_date: null
+    description: "Eleito senador por Minas Gerais em 2018, pelo DEM. Migrou para o PSD em 2021."
+  - role: "Presidente do Senado Federal e do Congresso Nacional"
+    institution: "senado-federal"
+    start_date: "2021-02-01"
+    end_date: null
+    description: "Eleito presidente do Senado em fevereiro de 2021 e reeleito em fevereiro de 2023 para novo biênio."
+party_affiliations:
+  - party: "DEM — Democratas"
+    start: "2010-01-01"
+    end: "2021-11-01"
+  - party: "PSD — Partido Social Democrático"
+    start: "2021-11-01"
+    end: null
+key_decisions: []
+controversies: []
+public_positions:
+  - topic: "Reforma tributária"
+    position: "Defensor ativo da aprovação da Reforma Tributária (aprovada em 2023)."
+    source: null
+  - topic: "Democracia"
+    position: "Posicionou-se publicamente contra tentativas de desestabilização das instituições democráticas."
+    source: null
+tags:
+  - legislativo
+  - senado
+  - presidente-do-senado
+  - congresso-nacional
+  - psd
+  - minas-gerais
+sources:
+  - "https://www25.senado.leg.br/web/senadores/senador/-/perfil/5936"
+last_updated: "2026-02-23T00:00:00"

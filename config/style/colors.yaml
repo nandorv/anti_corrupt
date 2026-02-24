@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────────────────────────────
+# Color Palette
+# Each institution type and UI element has a consistent color identity
+# ─────────────────────────────────────────────────────────────────
+
+institution_types:
+  judicial:
+    primary: "#1A365D"        # Deep navy blue — authority, impartiality
+    accent: "#2B6CB0"         # Medium blue
+    text_on_primary: "#FFFFFF"
+    label: "Judiciário"
+
+  legislative:
+    primary: "#276749"        # Deep green — representation, growth
+    accent: "#38A169"         # Medium green
+    text_on_primary: "#FFFFFF"
+    label: "Legislativo"
+
+  executive:
+    primary: "#975A16"        # Dark gold — power, office
+    accent: "#D69E2E"         # Amber
+    text_on_primary: "#FFFFFF"
+    label: "Executivo"
+
+  independent:
+    primary: "#553C9A"        # Deep purple — independence, neutrality
+    accent: "#805AD5"         # Medium purple
+    text_on_primary: "#FFFFFF"
+    label: "Órgão Independente"
+
+  military:
+    primary: "#2D3748"        # Dark slate — structure, hierarchy
+    accent: "#4A5568"         # Medium slate
+    text_on_primary: "#FFFFFF"
+    label: "Forças Armadas"
+
+  other:
+    primary: "#4A5568"        # Neutral slate
+    accent: "#718096"
+    text_on_primary: "#FFFFFF"
+    label: "Outro"
+
+ui:
+  background: "#F7FAFC"       # Near-white — clean, minimal
+  surface: "#FFFFFF"          # Card/panel background
+  border: "#E2E8F0"           # Subtle border
+  text_primary: "#1A202C"     # Near-black body text
+  text_secondary: "#4A5568"   # Secondary text
+  text_muted: "#718096"       # Caption/metadata text
+
+  # Semantic colors
+  success: "#276749"
+  warning: "#975A16"
+  error: "#C53030"
+  info: "#2B6CB0"
+
+  # Content labels
+  fact: "#276749"             # Green — verified fact
+  context: "#2B6CB0"          # Blue — background context
+  analysis: "#553C9A"         # Purple — interpretation
+  opinion: "#975A16"          # Gold — opinion (use sparingly)
+
+carousel:
+  slide_background: "#FFFFFF"
+  header_background: "#1A202C"
+  header_text: "#FFFFFF"
+  body_text: "#2D3748"
+  source_text: "#718096"
+  slide_number_text: "#A0AEC0"
+  footer_background: "#F7FAFC"

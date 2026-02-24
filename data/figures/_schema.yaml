@@ -1,0 +1,36 @@
+# ─────────────────────────────────────────────────────────────────
+# Figure Schema
+# ─────────────────────────────────────────────────────────────────
+
+# id: string — unique slug (e.g., "alexandre-de-moraes")
+# full_name: string
+# birth_date: date (YYYY-MM-DD) | null
+# birth_place: string | null
+# education:
+#   - institution: string
+#     degree: string
+#     year: int | null
+# career: (chronological)
+#   - role: string
+#     institution: string
+#     start_date: date (YYYY-MM-DD) | null
+#     end_date: date (YYYY-MM-DD) | null  — null means current position
+#     description: string | null
+# party_affiliations:
+#   - party: string
+#     start: date (YYYY-MM-DD) | null
+#     end: date (YYYY-MM-DD) | null       — null means current
+# key_decisions: [event_id]              — links to event records
+# controversies:
+#   - title: string
+#     date: date (YYYY-MM-DD) | null
+#     summary: string
+#     sources: [url]
+#     status: enum — alleged | investigated | charged | convicted | acquitted | ongoing | closed
+# public_positions:
+#   - topic: string
+#     position: string
+#     source: url | null
+# tags: [string]
+# sources: [url]
+# last_updated: datetime (ISO 8601)

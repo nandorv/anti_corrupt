@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────────────────────────
+# Editorial Rules
+# Defines the tone, style, and content guidelines for all AI-generated
+# and human-edited content on this platform.
+# ─────────────────────────────────────────────────────────────────
+
+voice:
+  tone: neutral          # Never partisan, never outraged
+  style: educational     # Explain before judging
+  register: accessible   # No jargon without definition
+  language: pt-BR        # Brazilian Portuguese primary
+
+content_labels:
+  - FACT        # Verified, sourced — requires 2+ independent sources
+  - CONTEXT     # Factual background — must reference factual basis
+  - ANALYSIS    # Interpretation of facts — must be labeled as analysis
+  - OPINION     # Editorial position — avoid in Phase 1
+
+prohibited:
+  - Unverified allegations presented as fact
+  - Speculative language without clear labeling ("provavelmente", "supostamente" without sourcing)
+  - Personal attacks unrelated to public roles
+  - Content about ongoing sealed investigations
+  - Content involving minors
+
+required:
+  - Source attribution for all factual claims
+  - Institution context (every story connects to a system)
+  - Correction notice for factual errors (transparent and dated)
+
+sensitivity_flags:
+  - ongoing_investigations    # Flag for legal review
+  - sealed_court_records      # Do not publish
+  - unconfirmed_sources       # Flag for human review
+  - inflammatory_language     # Flag for tone review
+
+platforms:
+  instagram:
+    max_caption_chars: 2200
+    max_carousel_slides: 10
+    image_size: [1080, 1080]
+    story_size: [1080, 1920]
+  twitter:
+    max_tweet_chars: 280
+    max_thread_tweets: 20
+    image_size: [1200, 675]
+
+correction_policy:
+  notice_template: "⚠️ Correção ({date}): {error_description}. Versão corrigida: {correction}."
+  preserve_original: true   # Keep original in git history
+  follow_up_post: true      # Post correction as follow-up on same platform

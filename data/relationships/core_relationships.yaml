@@ -1,0 +1,125 @@
+relationships:
+  - id: moraes-nomeado-stf
+    source_type: figure
+    source_id: alexandre-de-moraes
+    target_type: institution
+    target_id: stf
+    relationship_type: member_of
+    description: "Alexandre de Moraes é ministro do STF desde março de 2017, nomeado por Michel Temer."
+    start_date: "2017-03-22"
+    end_date: null
+    strength: strong
+    sources:
+      - "https://portal.stf.jus.br"
+    last_updated: "2026-02-23T00:00:00"
+
+  - id: lula-presidente
+    source_type: figure
+    source_id: lula
+    target_type: institution
+    target_id: presidencia-da-republica
+    relationship_type: member_of
+    description: "Lula é presidente da República desde janeiro de 2023 (terceiro mandato)."
+    start_date: "2023-01-01"
+    end_date: null
+    strength: strong
+    sources:
+      - "https://www.gov.br/presidencia"
+    last_updated: "2026-02-23T00:00:00"
+
+  - id: pacheco-presidente-senado
+    source_type: figure
+    source_id: rodrigo-pacheco
+    target_type: institution
+    target_id: senado-federal
+    relationship_type: member_of
+    description: "Rodrigo Pacheco é senador por Minas Gerais e presidente do Senado Federal desde 2021."
+    start_date: "2021-02-01"
+    end_date: null
+    strength: strong
+    sources:
+      - "https://www.senado.leg.br"
+    last_updated: "2026-02-23T00:00:00"
+
+  - id: senado-parte-congresso
+    source_type: institution
+    source_id: senado-federal
+    target_type: institution
+    target_id: congresso-nacional
+    relationship_type: part_of
+    description: "O Senado Federal é uma das duas casas do Congresso Nacional."
+    start_date: "1988-10-05"
+    end_date: null
+    strength: strong
+    sources:
+      - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+    last_updated: "2026-02-23T00:00:00"
+
+  - id: camara-parte-congresso
+    source_type: institution
+    source_id: camara-dos-deputados
+    target_type: institution
+    target_id: congresso-nacional
+    relationship_type: part_of
+    description: "A Câmara dos Deputados é uma das duas casas do Congresso Nacional."
+    start_date: "1988-10-05"
+    end_date: null
+    strength: strong
+    sources:
+      - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+    last_updated: "2026-02-23T00:00:00"
+
+  - id: stf-checks-congresso
+    source_type: institution
+    source_id: stf
+    target_type: institution
+    target_id: congresso-nacional
+    relationship_type: checks
+    description: "O STF pode declarar leis aprovadas pelo Congresso inconstitucionais (controle de constitucionalidade)."
+    start_date: "1988-10-05"
+    end_date: null
+    strength: strong
+    sources:
+      - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+    last_updated: "2026-02-23T00:00:00"
+
+  - id: stf-checks-executivo
+    source_type: institution
+    source_id: stf
+    target_type: institution
+    target_id: presidencia-da-republica
+    relationship_type: checks
+    description: "O STF pode anular atos do Executivo que violem a Constituição."
+    start_date: "1988-10-05"
+    end_date: null
+    strength: strong
+    sources:
+      - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+    last_updated: "2026-02-23T00:00:00"
+
+  - id: mpf-investigates-corruption
+    source_type: institution
+    source_id: mpf
+    target_type: event
+    target_id: operacao-lava-jato
+    relationship_type: actor_in
+    description: "O MPF, através de sua força-tarefa em Curitiba, foi o órgão responsável pelas investigações e acusações da Operação Lava Jato."
+    start_date: "2014-03-17"
+    end_date: "2021-02-01"
+    strength: strong
+    sources:
+      - "https://www.mpf.mp.br/grandes-casos/lava-jato"
+    last_updated: "2026-02-23T00:00:00"
+
+  - id: lava-jato-caused-impeachment
+    source_type: event
+    source_id: operacao-lava-jato
+    target_type: event
+    target_id: impeachment-dilma-2016
+    relationship_type: led_to
+    description: "O ambiente político criado pela Lava Jato contribuiu para o enfraquecimento do governo Dilma e criou condições para o processo de impeachment."
+    start_date: null
+    end_date: null
+    strength: moderate
+    sources: []
+    last_updated: "2026-02-23T00:00:00"

@@ -1,0 +1,45 @@
+name: explain_institution
+version: "1.0"
+model: claude-sonnet-4-20250514
+max_tokens: 1200
+temperature: 0.3
+
+system: |
+  Você é um educador cívico especializado em instituições brasileiras.
+  Seu papel é explicar como as instituições funcionam de forma clara, estruturada
+  e acessível para o público geral.
+
+  Regras:
+  - Base-se nos dados fornecidos do banco de conhecimento
+  - Evite opiniões sobre a instituição
+  - Use analogias quando ajudar na compreensão
+  - Destaque o papel da instituição no sistema de freios e contrapesos
+  - Idioma: Português Brasileiro
+
+user_template: |
+  Crie uma explicação educacional sobre a seguinte instituição:
+
+  **Dados da instituição:**
+  {{ institution_data }}
+
+  **Tópico específico a abordar (opcional):**
+  {{ specific_topic }}
+
+  **Formato de saída:**
+
+  **O que é**
+  [Definição clara em 1-2 frases]
+
+  **Para que serve**
+  [Funções principais em bullet points (máx. 5)]
+
+  **Como funciona**
+  [Processo ou estrutura em linguagem simples]
+
+  **Seu papel no sistema**
+  [Como se relaciona com outras instituições — checks and balances]
+
+  **Exemplo prático**
+  [Um caso concreto que ilustra sua atuação]
+
+  Limite: 350 palavras.

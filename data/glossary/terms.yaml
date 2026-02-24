@@ -1,0 +1,133 @@
+terms:
+  - id: habeas-corpus
+    term_pt: "Habeas Corpus"
+    term_en: "Habeas Corpus"
+    definition: >
+      Instrumento constitucional que protege a liberdade de locomoção de qualquer
+      pessoa contra prisão ilegal ou abusiva. Qualquer pessoa pode pedir habeas corpus
+      em favor próprio ou de terceiro.
+    legal_definition: "Art. 5º, LXVIII, CF/88: conceder-se-á habeas corpus sempre que alguém sofrer ou se achar ameaçado de sofrer violência ou coação em sua liberdade de locomoção, por ilegalidade ou abuso de poder."
+    example: "Durante a Operação Lava Jato, advogados impetram habeas corpus no STF pedindo a soltura de investigados presos preventivamente."
+    related_terms:
+      - mandado-de-seguranca
+    related_institutions:
+      - stf
+    tags:
+      - direitos-fundamentais
+      - liberdade
+      - processo-penal
+    sources:
+      - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+
+  - id: impeachment
+    term_pt: "Impeachment"
+    term_en: "Impeachment"
+    definition: >
+      Processo de destituição de um agente público eleito por meio de julgamento
+      político no Congresso Nacional. No Brasil, o Presidente da República pode
+      ser afastado por crime de responsabilidade, conforme definido em lei específica.
+    legal_definition: "Arts. 85-86 da CF/88. O processo é julgado pelo Senado, presidido pelo presidente do STF."
+    example: "Em 2016, a presidente Dilma Rousseff sofreu impeachment aprovado pelo Senado por 61 votos a 20, por acusações de pedaladas fiscais."
+    related_terms:
+      - crime-de-responsabilidade
+      - pedaladas-fiscais
+    related_institutions:
+      - camara-dos-deputados
+      - senado-federal
+      - stf
+    tags:
+      - institucional
+      - presidente
+      - processo-político
+    sources:
+      - "https://www.planalto.gov.br/ccivil_03/leis/l1079.htm"
+
+  - id: medida-provisoria
+    term_pt: "Medida Provisória"
+    term_en: "Executive Order (approximate)"
+    definition: >
+      Ato normativo com força de lei, editado pelo Presidente da República em
+      casos de relevância e urgência. Tem vigência imediata, mas precisa ser
+      aprovada pelo Congresso Nacional em até 120 dias, ou perde a validade.
+    legal_definition: "Art. 62 da CF/88."
+    example: "O governo edita uma medida provisória para criar um programa de renda emergencial em resposta a uma crise econômica. O Congresso tem 120 dias para aprová-la, modificá-la ou rejeitá-la."
+    related_terms:
+      - projeto-de-lei
+    related_institutions:
+      - presidencia-da-republica
+      - congresso-nacional
+    tags:
+      - legislação
+      - executivo
+      - urgência
+    sources:
+      - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+
+  - id: controle-de-constitucionalidade
+    term_pt: "Controle de Constitucionalidade"
+    term_en: "Judicial Review"
+    definition: >
+      Mecanismo pelo qual o Poder Judiciário pode declarar uma lei ou ato normativo
+      inválido por contrariar a Constituição Federal. No Brasil, o STF é o órgão
+      máximo deste controle no âmbito federal.
+    legal_definition: "Arts. 102-103 da CF/88. Pode ser feito de forma concentrada (ADI, ADC, ADPF) pelo STF, ou difusa por qualquer juiz."
+    example: "O STF julga uma Ação Direta de Inconstitucionalidade (ADI) contra uma lei aprovada pelo Congresso, podendo suspender ou anular seus efeitos."
+    related_terms:
+      - adi
+      - stf
+    related_institutions:
+      - stf
+      - congresso-nacional
+    tags:
+      - judiciário
+      - constitucional
+      - separação-de-poderes
+    sources:
+      - "https://portal.stf.jus.br"
+
+  - id: separacao-de-poderes
+    term_pt: "Separação de Poderes"
+    term_en: "Separation of Powers"
+    definition: >
+      Princípio constitucional pelo qual o poder do Estado é dividido em três funções
+      independentes e harmônicas: Executivo (governa), Legislativo (cria leis) e
+      Judiciário (julga). Cada poder possui mecanismos para controlar os outros
+      (sistema de freios e contrapesos).
+    legal_definition: "Art. 2º da CF/88: 'São Poderes da União, independentes e harmônicos entre si, o Legislativo, o Executivo e o Judiciário.'"
+    example: "O Congresso aprova uma lei; o Executivo pode vetá-la; o STF pode declará-la inconstitucional. Cada poder age como freio dos outros."
+    related_terms:
+      - freios-e-contrapesos
+      - controle-de-constitucionalidade
+    related_institutions:
+      - stf
+      - congresso-nacional
+      - presidencia-da-republica
+    tags:
+      - constitucional
+      - democracia
+      - institucional
+      - freios-e-contrapesos
+    sources:
+      - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+
+  - id: pgr
+    term_pt: "Procurador-Geral da República"
+    term_en: "Attorney General"
+    definition: >
+      Chefe do Ministério Público Federal, responsável por coordenar a atuação
+      do MPF em todo o Brasil. É o único com legitimidade para propor ação penal
+      contra membros do Congresso e ministros do STF com foro privilegiado.
+    legal_definition: "Art. 128, §1º da CF/88."
+    example: "O PGR decide se oferece ou arquiva uma denúncia contra um senador, baseando-se nas investigações da Polícia Federal."
+    related_terms:
+      - foro-privilegiado
+    related_institutions:
+      - mpf
+      - stf
+      - senado-federal
+    tags:
+      - ministério-público
+      - pgr
+      - ação-penal
+    sources:
+      - "https://www.mpf.mp.br"

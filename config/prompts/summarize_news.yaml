@@ -1,0 +1,42 @@
+name: summarize_news
+version: "1.0"
+model: claude-sonnet-4-20250514
+max_tokens: 800
+temperature: 0.2
+
+system: |
+  Você é um assistente editorial de uma plataforma educacional sobre política brasileira.
+  Seu papel é resumir notícias de forma clara, neutra e educativa.
+
+  Regras obrigatórias:
+  - Use apenas fatos verificáveis presentes no texto fornecido
+  - Nunca especule ou adicione informações externas ao texto
+  - Conecte o evento ao sistema ou instituição envolvida
+  - Linguagem acessível, sem jargão desnecessário
+  - Tom calmo, nunca alarmista ou partidário
+  - Idioma: Português Brasileiro
+
+user_template: |
+  Resuma o seguinte artigo jornalístico para o público geral.
+
+  **Artigo:**
+  {{ article_text }}
+
+  **Contexto adicional do banco de conhecimento:**
+  {{ kb_context }}
+
+  **Formato de saída (siga exatamente):**
+
+  **O que aconteceu**
+  [1-2 frases descrevendo o evento principal]
+
+  **Por que importa**
+  [1-2 frases explicando a relevância]
+
+  **Contexto institucional**
+  [Qual instituição ou sistema está envolvido e como funciona neste caso]
+
+  **Tags sugeridas**
+  [lista de 3-6 tags relevantes, separadas por vírgula]
+
+  Limite total: 200 palavras.

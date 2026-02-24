@@ -1,0 +1,47 @@
+id: camara-dos-deputados
+name_official: "Câmara dos Deputados"
+name_common: "Câmara"
+acronym: "CD"
+type: legislative
+jurisdiction: Federal
+established: "1826-05-06"
+constitutional_basis: "Arts. 44-55 da Constituição Federal de 1988"
+description: >
+  A Câmara dos Deputados é a câmara baixa do Congresso Nacional, representando
+  diretamente a população brasileira. Seus 513 deputados são eleitos pelo sistema
+  proporcional de lista aberta, com vagas distribuídas proporcionalmente à população
+  de cada estado.
+key_functions:
+  - "Iniciar a maioria dos projetos de lei ordinária"
+  - "Autorizar o processo de impeachment do Presidente da República"
+  - "Aprovar o orçamento federal junto ao Senado"
+  - "Criar e extinguir ministérios e órgãos federais"
+  - "Fiscalizar os atos do Poder Executivo"
+  - "Apreciar medidas provisórias antes do Senado"
+composition:
+  total_members: 513
+  how_appointed: >
+    Eleição proporcional de lista aberta. As vagas são distribuídas entre os estados
+    proporcionalmente à população, com mínimo de 8 e máximo de 70 deputados por estado.
+  term_length: "4 anos"
+current_leadership:
+  - name: "A ser atualizado"
+    role: "Presidente da Câmara dos Deputados"
+    since: null
+hierarchy:
+  parent: congresso-nacional
+  children: []
+related_institutions:
+  - senado-federal
+  - stf
+  - presidencia-da-republica
+tags:
+  - legislativo
+  - câmara
+  - câmara-baixa
+  - deputados
+  - representação-proporcional
+sources:
+  - "https://www.camara.leg.br"
+  - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+last_updated: "2026-02-23T00:00:00"

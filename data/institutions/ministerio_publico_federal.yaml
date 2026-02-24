@@ -1,0 +1,50 @@
+id: mpf
+name_official: "Ministério Público Federal"
+name_common: "Ministério Público Federal"
+acronym: "MPF"
+type: independent
+jurisdiction: Federal
+established: "1988-10-05"
+constitutional_basis: "Arts. 127-130 da Constituição Federal de 1988"
+description: >
+  O Ministério Público Federal é o ramo federal do Ministério Público da União,
+  instituição independente que atua na defesa da ordem jurídica, do regime democrático
+  e dos interesses sociais e individuais indisponíveis. Sua independência funcional
+  é constitucionalmente garantida — não pertence a nenhum dos três poderes.
+key_functions:
+  - "Promover a ação penal pública federal"
+  - "Zelar pelo efetivo respeito dos Poderes Públicos aos direitos assegurados na Constituição"
+  - "Promover a ação de inconstitucionalidade e representação para fins de intervenção"
+  - "Defender judicialmente os direitos e interesses das populações indígenas"
+  - "Expedir notificações em procedimentos administrativos"
+  - "Promover o inquérito civil e a ação civil pública para proteção do patrimônio público"
+  - "Fiscalizar a aplicação de recursos públicos federais"
+composition:
+  total_members: null
+  how_appointed: >
+    Procuradores são aprovados em concurso público de provas e títulos.
+    O Procurador-Geral da República (PGR) é nomeado pelo Presidente da República,
+    dentre integrantes da carreira maiores de 35 anos, após aprovação do Senado.
+  term_length: "PGR: mandato de 2 anos, permitida a recondução. Procuradores: estabilidade após estágio probatório."
+current_leadership:
+  - name: "A ser atualizado"
+    role: "Procurador-Geral da República (PGR)"
+    since: null
+hierarchy:
+  parent: null
+  children: []
+related_institutions:
+  - stf
+  - pf
+  - senado-federal
+tags:
+  - independente
+  - ministério-público
+  - ação-penal
+  - patrimônio-público
+  - pgr
+  - controle-externo
+sources:
+  - "https://www.mpf.mp.br"
+  - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+last_updated: "2026-02-23T00:00:00"

@@ -1,0 +1,76 @@
+# ─────────────────────────────────────────────────────────────────
+# Visual Template Definitions
+# Maps template names to their SVG file, dimensions, and slots
+# ─────────────────────────────────────────────────────────────────
+
+carousel_slide:
+  file: "src/visuals/templates/carousel_slide.svg"
+  width: 1080
+  height: 1080
+  slots:
+    - id: institution_label
+      type: text
+      max_chars: 30
+    - id: slide_number
+      type: text
+      max_chars: 6
+    - id: title
+      type: text
+      max_chars: 80
+    - id: body
+      type: multiline_text
+      max_chars: 300
+      max_lines: 8
+    - id: source
+      type: text
+      max_chars: 80
+    - id: accent_color
+      type: color
+
+profile_card:
+  file: "src/visuals/templates/profile_card.svg"
+  width: 1080
+  height: 1080
+  slots:
+    - id: full_name
+      type: text
+      max_chars: 50
+    - id: role
+      type: text
+      max_chars: 60
+    - id: institution
+      type: text
+      max_chars: 40
+    - id: body
+      type: multiline_text
+      max_chars: 400
+      max_lines: 10
+    - id: accent_color
+      type: color
+
+timeline_horizontal:
+  file: "src/visuals/templates/timeline_horizontal.svg"
+  width: 1080
+  height: 1080
+  slots:
+    - id: title
+      type: text
+      max_chars: 60
+    - id: events
+      type: list
+      max_items: 5
+    - id: accent_color
+      type: color
+
+diagram_base:
+  file: "src/visuals/templates/diagram_base.svg"
+  width: 1080
+  height: 1080
+  slots:
+    - id: title
+      type: text
+      max_chars: 60
+    - id: nodes
+      type: list
+    - id: edges
+      type: list

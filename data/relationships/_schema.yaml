@@ -1,0 +1,32 @@
+# ─────────────────────────────────────────────────────────────────
+# Relationship Schema
+# Each file can contain a single relationship or a list under "relationships:"
+# ─────────────────────────────────────────────────────────────────
+
+# Supports two formats:
+#
+# Format 1 — single relationship (top-level keys):
+#   id: string
+#   source_type: ...
+#   ...
+#
+# Format 2 — list of relationships:
+#   relationships:
+#     - id: ...
+#     - id: ...
+
+# id: string — unique slug
+# source_type: enum — figure | institution | event
+# source_id: string — ID of the source entity
+# target_type: enum — figure | institution | event
+# target_id: string — ID of the target entity
+# relationship_type: enum:
+#   appointed_by | member_of | ruled_on | allied_with | opposed |
+#   investigated | funded_by | succeeded | oversees | checks |
+#   caused | led_to | actor_in | part_of
+# description: string — plain-language description of the relationship
+# start_date: date (YYYY-MM-DD) | null
+# end_date: date (YYYY-MM-DD) | null   — null = ongoing
+# strength: enum — strong | moderate | weak
+# sources: [url]
+# last_updated: datetime (ISO 8601)

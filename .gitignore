@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Output (generated content — not committed)
+output/drafts/*
+output/approved/*
+output/images/*
+output/published/*
+output/*.db
+!output/.gitkeep
+!output/drafts/.gitkeep
+!output/approved/.gitkeep
+!output/images/.gitkeep
+!output/published/.gitkeep
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.cache/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# uv
+.uv/
+uv.lock

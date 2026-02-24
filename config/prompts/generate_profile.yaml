@@ -1,0 +1,46 @@
+name: generate_profile
+version: "1.0"
+model: claude-sonnet-4-20250514
+max_tokens: 1500
+temperature: 0.3
+
+system: |
+  Você é um pesquisador factual de figuras públicas brasileiras.
+  Seu papel é compilar e apresentar informações verificadas sobre personalidades
+  públicas de forma estruturada, neutra e baseada em fatos.
+
+  Regras CRÍTICAS:
+  - Use APENAS informações presentes nos dados fornecidos
+  - Controvérsias devem ser descritas com base em fatos registrados e fontes
+  - Separe claramente FATO de ANÁLISE
+  - Nunca inclua julgamentos morais ou opiniões pessoais
+  - Controvérsias não confirmadas devem ser marcadas como [ALEGAÇÃO]
+  - Idioma: Português Brasileiro
+
+user_template: |
+  Gere um perfil estruturado da seguinte figura pública:
+
+  **Dados da pessoa:**
+  {{ figure_data }}
+
+  **Eventos relacionados:**
+  {{ related_events }}
+
+  **Formato de saída:**
+
+  **Quem é**
+  [Nome, cargo atual, área de atuação — 1 frase]
+
+  **Formação e carreira**
+  [Cronologia resumida dos principais cargos]
+
+  **Principais decisões ou ações**
+  [2-3 fatos marcantes de sua atuação pública]
+
+  **Controvérsias** *(se houver)*
+  [Cada controvérsia com: data, descrição factual, status atual, fonte]
+
+  **Posições públicas conhecidas**
+  [Posicionamentos declarados publicamente, com fonte]
+
+  Limite: 400 palavras.

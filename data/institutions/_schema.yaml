@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────────
+# Institution Schema
+# Defines the expected structure for each institution YAML file
+# ─────────────────────────────────────────────────────────────────
+
+# id: string — unique slug, lowercase, no spaces (e.g., "stf", "camara")
+# name_official: string — full official name
+# name_common: string — how people commonly refer to it
+# acronym: string — abbreviation (e.g., "STF", "TSE")
+# type: enum — one of: executive | legislative | judicial | independent | military | other
+# jurisdiction: string — "Federal", "Estadual", "Municipal", "Nacional"
+# established: date (YYYY-MM-DD) — when the institution was created
+# constitutional_basis: string — article/section of the constitution
+# description: string — 2-3 sentence plain-language summary
+# key_functions: [string] — list of main responsibilities
+# composition:
+#   total_members: int
+#   how_appointed: string
+#   term_length: string
+# current_leadership:
+#   - name: string
+#     role: string
+#     since: date (YYYY-MM-DD)
+# hierarchy:
+#   parent: institution_id | null
+#   children: [institution_id]
+# related_institutions: [institution_id]
+# tags: [string]
+# sources: [url]
+# last_updated: datetime (ISO 8601)
+
+# Example minimal valid institution:
+# id: "example"
+# name_official: "Tribunal de Exemplo"
+# name_common: "Tribunal de Exemplo"
+# acronym: "TE"
+# type: "judicial"
+# jurisdiction: "Federal"
+# description: "Um tribunal de exemplo."
+# key_functions:
+#   - "Julgar exemplos"

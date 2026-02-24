@@ -1,0 +1,44 @@
+id: stf
+name_official: "Supremo Tribunal Federal"
+name_common: "STF"
+acronym: "STF"
+type: judicial
+jurisdiction: Federal
+established: "1890-11-15"
+constitutional_basis: "Arts. 101-103 da Constituição Federal de 1988"
+description: >
+  O Supremo Tribunal Federal é o órgão de cúpula do Poder Judiciário brasileiro
+  e o guardião da Constituição Federal. Compete ao STF julgar, em última instância,
+  questões constitucionais e processos de alta relevância para o país.
+key_functions:
+  - "Guardar a Constituição Federal (Art. 102, CF/88)"
+  - "Julgar ações de inconstitucionalidade de leis e atos normativos"
+  - "Julgar o Presidente da República, o Vice-Presidente e membros do Congresso por crimes comuns"
+  - "Julgar o Procurador-Geral da República e o Advogado-Geral da União"
+  - "Apreciar habeas corpus quando o coator for tribunal superior"
+  - "Julgar mandado de injunção quando a omissão for de autoridade federal"
+composition:
+  total_members: 11
+  how_appointed: "Nomeados pelo Presidente da República, após aprovação por maioria absoluta do Senado Federal"
+  term_length: "Vitalício (até a aposentadoria compulsória aos 75 anos)"
+current_leadership:
+  - name: "A ser atualizado"
+    role: "Presidente do STF"
+    since: null
+hierarchy:
+  parent: null
+  children: []
+related_institutions:
+  - stj
+  - tse
+  - congresso-nacional
+  - presidencia-da-republica
+tags:
+  - judiciário
+  - constitucional
+  - corte-suprema
+  - controle-de-constitucionalidade
+sources:
+  - "https://portal.stf.jus.br"
+  - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+last_updated: "2026-02-23T00:00:00"

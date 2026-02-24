@@ -1,0 +1,78 @@
+id: alexandre-de-moraes
+full_name: "Alexandre de Moraes"
+birth_date: "1968-12-13"
+birth_place: "São Paulo, SP"
+education:
+  - institution: "Faculdade de Direito da Universidade de São Paulo (Largo de São Francisco)"
+    degree: "Bacharelado em Direito"
+    year: 1990
+  - institution: "Universidade de São Paulo"
+    degree: "Doutorado em Direito do Estado"
+    year: 2001
+career:
+  - role: "Professor de Direito Constitucional e Direito Penal"
+    institution: "Universidade de São Paulo (USP)"
+    start_date: "1992-01-01"
+    end_date: null
+    description: "Professor na Faculdade de Direito da USP e em outros cursos jurídicos."
+  - role: "Secretário de Segurança Pública do Estado de São Paulo"
+    institution: "Governo do Estado de São Paulo"
+    start_date: "2015-01-01"
+    end_date: "2016-05-01"
+    description: "Nomeado pelo governador Geraldo Alckmin (PSDB)."
+  - role: "Ministro da Justiça e Segurança Pública"
+    institution: "presidencia-da-republica"
+    start_date: "2016-05-12"
+    end_date: "2017-03-22"
+    description: "Nomeado pelo presidente interino Michel Temer (MDB) após o afastamento de Dilma Rousseff."
+  - role: "Ministro do Supremo Tribunal Federal"
+    institution: "stf"
+    start_date: "2017-03-22"
+    end_date: null
+    description: "Nomeado pelo presidente Michel Temer e aprovado pelo Senado Federal."
+  - role: "Presidente do Tribunal Superior Eleitoral"
+    institution: "tse"
+    start_date: "2022-08-16"
+    end_date: "2024-08-15"
+    description: "Presidiu o TSE durante as eleições gerais de 2022."
+  - role: "Presidente do Supremo Tribunal Federal"
+    institution: "stf"
+    start_date: "2023-10-10"
+    end_date: "2025-10-10"
+    description: "Eleito presidente do STF pelos pares para mandato de dois anos."
+party_affiliations: []
+key_decisions:
+  - inquérito-fake-news-2020
+controversies:
+  - title: "Condução do Inquérito das Fake News (Inq. 4781)"
+    date: "2019-03-14"
+    summary: >
+      Determinou abertura de inquérito para investigar disseminação de notícias
+      falsas contra o STF e seus membros, atuando como relator e investigador
+      simultaneamente, o que gerou debates sobre imparcialidade e acumulação
+      de funções incompatíveis.
+    sources:
+      - "https://portal.stf.jus.br"
+    status: ongoing
+  - title: "Suspensão do X (Twitter) no Brasil"
+    date: "2024-08-28"
+    summary: >
+      Determinou a suspensão da plataforma X no Brasil por descumprimento de
+      ordens judiciais de remoção de perfis e indicação de representante legal
+      no país. A plataforma ficou suspensa por 39 dias.
+    sources:
+      - "https://portal.stf.jus.br"
+    status: closed
+public_positions:
+  - topic: "Democracia e ataques ao STF"
+    position: "Defensor enfático da democracia e das instituições; considera ataques ao STF como ataques ao Estado de Direito."
+    source: null
+tags:
+  - stf
+  - judiciário
+  - constitucional
+  - tse
+  - eleições
+sources:
+  - "https://portal.stf.jus.br/stf/portal/cms/verTexto.asp?servico=sobreStfComposicaoMin"
+last_updated: "2026-02-23T00:00:00"

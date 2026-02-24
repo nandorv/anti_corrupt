@@ -1,0 +1,44 @@
+id: senado-federal
+name_official: "Senado Federal"
+name_common: "Senado"
+acronym: "SF"
+type: legislative
+jurisdiction: Federal
+established: "1823-05-03"
+constitutional_basis: "Arts. 44-52 da Constituição Federal de 1988"
+description: >
+  O Senado Federal é a câmara alta do Congresso Nacional, representando os estados
+  e o Distrito Federal. Cada unidade da federação elege três senadores, garantindo
+  representação igualitária independentemente do tamanho da população.
+key_functions:
+  - "Aprovar indicações do Presidente para cargos federais (ministros do STF, PGR, presidentes de autarquias)"
+  - "Processar e julgar o Presidente, o Vice-Presidente e ministros de Estado por crimes de responsabilidade"
+  - "Aprovar a concessão de anistia"
+  - "Fixar limites globais para o endividamento dos estados e municípios"
+  - "Deliberar em caráter definitivo sobre tratados internacionais de natureza tributária"
+  - "Presidir o Congresso Nacional"
+composition:
+  total_members: 81
+  how_appointed: "Eleição majoritária — 3 senadores por estado + 3 pelo Distrito Federal"
+  term_length: "8 anos (renovação alternada: 1/3 e 2/3 a cada 4 anos)"
+current_leadership:
+  - name: "Rodrigo Pacheco"
+    role: "Presidente do Senado Federal"
+    since: "2021-02-01"
+hierarchy:
+  parent: congresso-nacional
+  children: []
+related_institutions:
+  - camara-dos-deputados
+  - stf
+  - presidencia-da-republica
+tags:
+  - legislativo
+  - senado
+  - câmara-alta
+  - estados
+  - federalismo
+sources:
+  - "https://www.senado.leg.br"
+  - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+last_updated: "2026-02-23T00:00:00"

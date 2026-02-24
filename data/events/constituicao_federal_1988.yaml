@@ -1,0 +1,45 @@
+id: constituicao-1988
+title: "Promulgação da Constituição Federal de 1988"
+date: "1988-10-05"
+end_date: null
+type: law
+summary: >
+  Promulgação da atual Constituição Federal do Brasil, conhecida como a
+  "Constituição Cidadã". Encerrou formalmente o período da ditadura militar
+  e estabeleceu as bases do Estado Democrático de Direito brasileiro.
+detailed_description: >
+  A Constituição Federal de 1988 foi elaborada pela Assembleia Nacional Constituinte,
+  instalada em 1º de fevereiro de 1987. Com 250 artigos e mais de 100 disposições
+  transitórias, é uma das mais longas constituições do mundo. Foi liderada pelo
+  deputado Ulysses Guimarães (PMDB), presidente da Assembleia, que a chamou de
+  "Constituição Cidadã" por ampliar os direitos individuais e sociais. Estabeleceu
+  eleições diretas para todos os cargos, criou o STF como guardião da constituição,
+  garantiu direitos trabalhistas, sociais, ambientais e indígenas, e definiu o Brasil
+  como uma República Federativa com separação de poderes.
+significance: >
+  Marco mais importante da redemocratização brasileira. A CF/88 definiu a arquitetura
+  institucional que rege o Brasil até hoje: os três poderes, o sistema federativo,
+  o papel do MPF, o STF como corte constitucional, os direitos fundamentais e os
+  mecanismos de controle de constitucionalidade.
+actors:
+  - figure_id: lula
+    role: "Deputado Constituinte"
+institutions_involved:
+  - congresso-nacional
+  - stf
+causes:
+  - fim-ditadura-militar
+consequences:
+  - criacao-stf-moderno
+  - eleicoes-diretas-1989
+timeline_group: "redemocratização"
+tags:
+  - constituição
+  - democracia
+  - redemocratização
+  - direitos-fundamentais
+  - institucional
+sources:
+  - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+  - "https://www2.camara.leg.br/atividade-legislativa/legislacao/Constituicoes_Brasileiras/constituicao1988.html"
+last_updated: "2026-02-23T00:00:00"

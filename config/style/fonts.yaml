@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────────
+# Typography Rules
+# ─────────────────────────────────────────────────────────────────
+
+# Primary font stack (system fonts for performance, no external deps)
+primary:
+  family: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+  weights: [400, 500, 600, 700]
+
+# Monospace (for IDs, codes, data references)
+mono:
+  family: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace"
+  weights: [400, 600]
+
+# Type scale (in pixels, for image generation with Pillow)
+scale:
+  display:      { size: 48, weight: 700, line_height: 1.1 }
+  heading_1:    { size: 36, weight: 700, line_height: 1.2 }
+  heading_2:    { size: 28, weight: 600, line_height: 1.25 }
+  heading_3:    { size: 22, weight: 600, line_height: 1.3 }
+  body_large:   { size: 18, weight: 400, line_height: 1.6 }
+  body:         { size: 16, weight: 400, line_height: 1.6 }
+  body_small:   { size: 14, weight: 400, line_height: 1.5 }
+  caption:      { size: 12, weight: 400, line_height: 1.4 }
+  label:        { size: 11, weight: 600, line_height: 1.2, uppercase: true, letter_spacing: 0.08 }
+
+# Per-platform overrides
+platforms:
+  instagram_carousel:
+    title:   { scale: heading_1, max_chars: 60 }
+    body:    { scale: body,      max_chars: 300 }
+    caption: { scale: caption,   max_chars: 80 }
+  twitter:
+    title:   { scale: heading_2, max_chars: 80 }
+    body:    { scale: body_small, max_chars: 200 }

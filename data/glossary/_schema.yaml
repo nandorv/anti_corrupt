@@ -1,0 +1,28 @@
+# ─────────────────────────────────────────────────────────────────
+# Glossary Schema
+# Each glossary file can contain a list of terms under "terms:"
+# or a single term at the top level
+# ─────────────────────────────────────────────────────────────────
+
+# Supports two formats:
+#
+# Format 1 — single term (top-level):
+#   id: string
+#   term_pt: string
+#   ...
+#
+# Format 2 — list of terms:
+#   terms:
+#     - id: ...
+#     - id: ...
+
+# id: string — unique slug
+# term_pt: string — term in Portuguese
+# term_en: string | null — English equivalent
+# definition: string — plain-language definition
+# legal_definition: string | null — formal/legal definition if different
+# example: string | null — usage in a real political context
+# related_terms: [term_id]
+# related_institutions: [institution_id]
+# tags: [string]
+# sources: [url]

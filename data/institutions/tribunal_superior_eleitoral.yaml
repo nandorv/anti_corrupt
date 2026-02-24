@@ -1,0 +1,50 @@
+id: tse
+name_official: "Tribunal Superior Eleitoral"
+name_common: "TSE"
+acronym: "TSE"
+type: judicial
+jurisdiction: Federal
+established: "1932-05-24"
+constitutional_basis: "Art. 119 da Constituição Federal de 1988"
+description: >
+  O Tribunal Superior Eleitoral é o órgão máximo da Justiça Eleitoral brasileira.
+  É responsável por administrar as eleições nacionais, registrar candidatos e
+  partidos, julgar recursos eleitorais e garantir a lisura do processo democrático.
+key_functions:
+  - "Administrar e fiscalizar as eleições nacionais"
+  - "Registrar e cancelar o registro de partidos políticos"
+  - "Processar e julgar crimes eleitorais em última instância"
+  - "Expedir instruções normativas sobre eleições"
+  - "Diplomar os eleitos para Presidente, Vice-Presidente e Senadores"
+  - "Decidir sobre inelegibilidades"
+  - "Cuidar do sistema eletrônico de votação (urna eletrônica)"
+composition:
+  total_members: 7
+  how_appointed: >
+    3 ministros eleitos dentre os membros do STF;
+    2 ministros eleitos dentre os membros do STJ;
+    2 advogados nomeados pelo Presidente da República, dentre 6 indicados pelo STF.
+  term_length: "2 anos (prorrogável por mais 2 anos — máximo de 4 anos consecutivos)"
+current_leadership:
+  - name: "A ser atualizado"
+    role: "Presidente do TSE"
+    since: null
+hierarchy:
+  parent: null
+  children:
+    - tre
+related_institutions:
+  - stf
+  - stj
+  - congresso-nacional
+tags:
+  - judiciário
+  - eleitoral
+  - democracia
+  - eleições
+  - partidos-políticos
+  - urna-eletrônica
+sources:
+  - "https://www.tse.jus.br"
+  - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+last_updated: "2026-02-23T00:00:00"

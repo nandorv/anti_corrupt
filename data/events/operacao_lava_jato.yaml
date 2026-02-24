@@ -1,0 +1,51 @@
+id: operacao-lava-jato
+title: "Operação Lava Jato"
+date: "2014-03-17"
+end_date: "2021-02-01"
+type: scandal
+summary: >
+  Maior operação anticorrupção da história do Brasil, investigou um esquema
+  bilionário de corrupção e lavagem de dinheiro envolvendo a Petrobras,
+  grandes empreiteiras e políticos de múltiplos partidos.
+detailed_description: >
+  A Operação Lava Jato teve início em 17 de março de 2014 com investigações sobre
+  doleiros em Curitiba. Rapidamente expandiu-se para descobrir um esquema de
+  propinas na Petrobras: empreiteiras pagavam propinas para executivos da estatal
+  e para políticos, em troca de contratos superfaturados. O esquema teria movimentado
+  mais de R$ 6 bilhões em subornos. A operação foi conduzida pelo juiz federal
+  Sérgio Moro na 13ª Vara Federal de Curitiba, com a força-tarefa liderada pelo
+  procurador Deltan Dallagnol. Resultou em mais de 200 condenações, incluindo
+  ex-presidentes, ministros, parlamentares e executivos de grandes empresas.
+  Em 2019, vazamentos de mensagens (Vaza Jato) revelaram conversas entre Moro e
+  Dallagnol que levantaram questões sobre a imparcialidade das investigações.
+  Em 2021, o STF anulou as condenações de Lula por incompetência de juízo e
+  reconheceu a parcialidade de Moro. A força-tarefa foi encerrada em fevereiro de 2021.
+significance: >
+  Redefiniu o debate sobre corrupção e justiça no Brasil. Teve impactos profundos
+  na política (levou ao impeachment de Dilma indiretamente, criou Bolsonaro como
+  fenômeno político), na economia (paralisia de grandes obras) e na percepção
+  institucional do Judiciário. A controvérsia sobre a parcialidade de Moro tornou-se
+  um dos maiores debates jurídicos da história recente do país.
+actors: []
+institutions_involved:
+  - mpf
+  - stf
+  - camara-dos-deputados
+  - senado-federal
+causes:
+  - constituicao-1988
+consequences:
+  - impeachment-dilma-2016
+  - eleicoes-2018
+timeline_group: "lava-jato"
+tags:
+  - corrupção
+  - lava-jato
+  - petrobras
+  - judiciário
+  - ministério-público
+  - operação-policial
+sources:
+  - "https://www.mpf.mp.br/grandes-casos/lava-jato"
+  - "https://theintercept.com/series/vaza-jato/"
+last_updated: "2026-02-23T00:00:00"

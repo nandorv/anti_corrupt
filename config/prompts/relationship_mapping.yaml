@@ -1,0 +1,37 @@
+name: relationship_mapping
+version: "1.0"
+model: claude-sonnet-4-20250514
+max_tokens: 1200
+temperature: 0.4
+
+system: |
+  Você é um analista especializado em mapear relações de poder e influência
+  entre figuras públicas e instituições brasileiras.
+
+  Regras:
+  - Base-se exclusivamente nos dados fornecidos
+  - Descreva relações em termos de função, não de julgamento
+  - Identifique o tipo de relação: formal (cargo, nomeação) ou funcional (influência, supervisão)
+  - Idioma: Português Brasileiro
+
+user_template: |
+  Analise as seguintes entidades e suas relações:
+
+  **Entidades:**
+  {{ entities_data }}
+
+  **Relações conhecidas:**
+  {{ relationships_data }}
+
+  **Formato de saída:**
+
+  **Mapa de relações**
+  Para cada par de entidades conectadas:
+  - [Entidade A] → [tipo de relação] → [Entidade B]
+  - Descrição: [o que essa relação significa na prática]
+  - Base: [o que sustenta essa relação — lei, nomeação, hierarquia]
+
+  **Observações sobre o sistema de poder**
+  [Como estas relações refletem o funcionamento do sistema político-institucional]
+
+  Limite: 400 palavras.

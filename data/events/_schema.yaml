@@ -1,0 +1,23 @@
+# ─────────────────────────────────────────────────────────────────
+# Event Schema
+# ─────────────────────────────────────────────────────────────────
+
+# id: string — unique slug (e.g., "impeachment-dilma-2016")
+# title: string
+# date: date (YYYY-MM-DD)
+# end_date: date (YYYY-MM-DD) | null — for events spanning time
+# type: enum — law | decision | crisis | election | appointment | scandal | reform | other
+# summary: string — 2-3 sentences
+# detailed_description: string | null — full explanation
+# significance: string | null — why this matters historically/institutionally
+# actors:
+#   - figure_id: string
+#     role: string   (e.g., "relator", "réu", "denunciante", "presidente")
+# institutions_involved: [institution_id]
+# causes: [event_id]       — what led to this event
+# consequences: [event_id] — what this event led to
+# timeline_group: string | null — group events into named timelines
+#                                  (e.g., "lava-jato", "impeachment-dilma")
+# tags: [string]
+# sources: [url]
+# last_updated: datetime (ISO 8601)

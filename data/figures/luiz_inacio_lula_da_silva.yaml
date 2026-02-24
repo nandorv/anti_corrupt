@@ -1,0 +1,81 @@
+id: lula
+full_name: "Luiz Inácio Lula da Silva"
+birth_date: "1945-10-27"
+birth_place: "Caetés, PE"
+education:
+  - institution: "Escola primária (até a 4ª série)"
+    degree: "Ensino fundamental incompleto"
+    year: null
+  - institution: "SENAI"
+    degree: "Técnico em torneiro mecânico"
+    year: 1963
+career:
+  - role: "Operário metalúrgico e torneiro mecânico"
+    institution: "Indústria metalúrgica no ABC Paulista"
+    start_date: "1960-01-01"
+    end_date: "1975-01-01"
+    description: "Trabalhou em fábricas do ABC Paulista (Santo André, São Bernardo, São Caetano)."
+  - role: "Presidente do Sindicato dos Metalúrgicos do ABC"
+    institution: "Sindicato dos Metalúrgicos do ABC"
+    start_date: "1975-01-01"
+    end_date: "1980-01-01"
+    description: "Liderou greves históricas da categoria entre 1978 e 1980, durante a ditadura militar."
+  - role: "Deputado Federal"
+    institution: "camara-dos-deputados"
+    start_date: "1987-01-01"
+    end_date: "1991-01-01"
+    description: "Constituinte — participou da elaboração da Constituição Federal de 1988."
+  - role: "Presidente da República — 1º e 2º mandatos"
+    institution: "presidencia-da-republica"
+    start_date: "2003-01-01"
+    end_date: "2010-12-31"
+    description: "Eleito em 2002, reeleito em 2006. Governo marcado por programas sociais (Bolsa Família) e crescimento econômico."
+  - role: "Presidente da República — 3º mandato"
+    institution: "presidencia-da-republica"
+    start_date: "2023-01-01"
+    end_date: null
+    description: "Eleito em outubro de 2022, no segundo turno contra Jair Bolsonaro. Tomou posse em 1º de janeiro de 2023."
+party_affiliations:
+  - party: "PT — Partido dos Trabalhadores"
+    start: "1980-02-10"
+    end: null
+key_decisions:
+  - eleicoes-2022
+  - constituicao-1988
+controversies:
+  - title: "Condenações na Operação Lava Jato"
+    date: "2017-07-12"
+    summary: >
+      Condenado em primeira instância pelo juiz Sérgio Moro por corrupção passiva
+      e lavagem de dinheiro, no caso do apartamento triplex no Guarujá. Teve diversas
+      condenações em segunda instância confirmadas pelo TRF4. Foi preso em abril de 2018.
+    sources:
+      - "https://www.conjur.com.br"
+    status: closed
+  - title: "Anulação das condenações pelo STF"
+    date: "2021-03-08"
+    summary: >
+      O ministro Edson Fachin anulou todas as condenações de Lula por incompetência
+      da 13ª Vara Federal de Curitiba. Posteriormente, o STF reconheceu por 8 votos a 3
+      que o juiz Sérgio Moro foi parcial ao condenar Lula, restaurando seus direitos políticos.
+    sources:
+      - "https://portal.stf.jus.br"
+    status: closed
+public_positions:
+  - topic: "Desigualdade social"
+    position: "Defensor histórico de políticas de redistribuição de renda e programas sociais."
+    source: null
+  - topic: "Democracia"
+    position: "Se apresenta como defensor das instituições democráticas, particularmente após os ataques de 8 de janeiro de 2023."
+    source: null
+tags:
+  - executivo
+  - presidente
+  - pt
+  - lava-jato
+  - trabalhismo
+  - políticas-sociais
+sources:
+  - "https://www.gov.br/presidencia"
+  - "https://pt.org.br"
+last_updated: "2026-02-23T00:00:00"

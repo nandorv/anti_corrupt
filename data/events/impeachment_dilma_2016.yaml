@@ -1,0 +1,55 @@
+id: impeachment-dilma-2016
+title: "Impeachment de Dilma Rousseff"
+date: "2015-12-02"
+end_date: "2016-08-31"
+type: crisis
+summary: >
+  Processo de impeachment da presidente Dilma Rousseff (PT), aprovado pela
+  Câmara em abril de 2016 e pelo Senado em agosto de 2016, com base em
+  acusações de irregularidades fiscais conhecidas como "pedaladas fiscais".
+detailed_description: >
+  O processo de impeachment de Dilma Rousseff foi aberto formalmente pelo então
+  presidente da Câmara, Eduardo Cunha (PMDB), em 2 de dezembro de 2015,
+  com base em denúncia dos juristas Hélio Bicudo, Miguel Reale Jr. e Janaína
+  Paschoal. A acusação principal foram as "pedaladas fiscais" — atrasos no repasse
+  de recursos do Tesouro a bancos públicos para cobrir gastos sociais, o que seria
+  uma prática de crédito ilegal e violação da Lei de Responsabilidade Fiscal.
+  A Câmara votou a favor do impeachment em 17 de abril de 2016 por 367 votos a 137.
+  O Senado aprovou a abertura do processo em maio de 2016, e Dilma foi afastada.
+  Em 31 de agosto de 2016, o Senado votou 61 a 20 pela cassação do mandato,
+  mas por 42 a 36 decidiu manter seus direitos políticos — impedindo assim nova
+  candidatura ao cargo. Michel Temer (PMDB) assumiu a presidência.
+significance: >
+  O impeachment de Dilma foi um dos eventos políticos mais divisivos da história
+  recente do Brasil. Opositores o chamaram de legítimo cumprimento constitucional;
+  apoiadores da presidente o definiram como "golpe parlamentar". Gerou uma profunda
+  crise institucional e política, acelerou a ascensão do populismo de direita e
+  abriu caminho para as eleições de 2018. Também expôs as fragilidades do sistema
+  presidencialista de coalizão brasileiro.
+actors:
+  - figure_id: lula
+    role: "Ex-presidente aliado à presidente cassada"
+institutions_involved:
+  - camara-dos-deputados
+  - senado-federal
+  - stf
+  - tse
+causes:
+  - operacao-lava-jato
+  - crise-economica-2015
+consequences:
+  - governo-temer-2016
+  - eleicoes-2018
+timeline_group: "impeachment-dilma"
+tags:
+  - impeachment
+  - dilma
+  - pt
+  - pmdb
+  - crise-política
+  - pedaladas-fiscais
+  - michel-temer
+sources:
+  - "https://www.senado.leg.br/noticias/jornal/arquivosjornal/2016/agosto/09/impeachment.html"
+  - "https://www2.camara.leg.br/camaranoticias/noticias/POLITICA/508575"
+last_updated: "2026-02-23T00:00:00"

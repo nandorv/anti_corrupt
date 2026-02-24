@@ -1,0 +1,48 @@
+id: presidencia-da-republica
+name_official: "Presidência da República Federativa do Brasil"
+name_common: "Presidência da República"
+acronym: "PR"
+type: executive
+jurisdiction: Federal
+established: "1891-02-24"
+constitutional_basis: "Arts. 76-91 da Constituição Federal de 1988"
+description: >
+  O Poder Executivo federal brasileiro, chefiado pelo Presidente da República.
+  Responsável pela administração do Estado, execução das leis, condução da política
+  interna e externa e direção das Forças Armadas como Comandante Supremo.
+key_functions:
+  - "Chefiar o Poder Executivo federal e administrar o Estado"
+  - "Sancionar, promulgar e vetar leis aprovadas pelo Congresso Nacional"
+  - "Nomear e exonerar Ministros de Estado"
+  - "Expedir decretos e regulamentos para execução das leis"
+  - "Elaborar e enviar a proposta orçamentária ao Congresso (LOA)"
+  - "Conduzir a política externa e representar o Brasil internacionalmente"
+  - "Comandar as Forças Armadas como Comandante Supremo"
+  - "Decretar estado de sítio e estado de defesa, com aprovação do Congresso"
+  - "Nomear magistrados do STF, STJ e demais tribunais superiores"
+composition:
+  total_members: 1
+  how_appointed: "Eleição direta pelo voto popular, em dois turnos se necessário"
+  term_length: "4 anos, reeleição permitida uma vez consecutiva"
+current_leadership:
+  - name: "Luiz Inácio Lula da Silva"
+    role: "Presidente da República"
+    since: "2023-01-01"
+hierarchy:
+  parent: null
+  children: []
+related_institutions:
+  - congresso-nacional
+  - stf
+  - tse
+  - ministerio-publico-federal
+tags:
+  - executivo
+  - poder
+  - governo-federal
+  - presidencia
+  - lula
+sources:
+  - "https://www.gov.br/presidencia"
+  - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+last_updated: "2026-02-23T00:00:00"

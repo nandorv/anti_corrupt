@@ -1,0 +1,47 @@
+id: congresso-nacional
+name_official: "Congresso Nacional"
+name_common: "Congresso Nacional"
+acronym: "CN"
+type: legislative
+jurisdiction: Federal
+established: "1891-02-24"
+constitutional_basis: "Art. 44 da Constituição Federal de 1988"
+description: >
+  O Congresso Nacional é o órgão do Poder Legislativo federal do Brasil, composto
+  por duas casas: o Senado Federal e a Câmara dos Deputados. É responsável por
+  elaborar leis, fiscalizar os outros poderes e representar a população brasileira.
+key_functions:
+  - "Elaborar, discutir e aprovar leis federais"
+  - "Fiscalizar e controlar os atos do Poder Executivo"
+  - "Aprovar o orçamento federal (LOA, LDO, PPA)"
+  - "Autorizar o estado de guerra e a intervenção federal"
+  - "Julgar o Presidente e o Vice-Presidente da República em crimes de responsabilidade"
+  - "Ratificar tratados e acordos internacionais"
+  - "Apreciar medidas provisórias editadas pelo Presidente"
+composition:
+  total_members: 594
+  how_appointed: "513 deputados (eleição proporcional, mandato 4 anos) + 81 senadores (eleição majoritária, mandato 8 anos)"
+  term_length: "4 anos para Câmara; 8 anos para Senado"
+current_leadership:
+  - name: "A ser atualizado"
+    role: "Presidente do Congresso Nacional (= Presidente do Senado)"
+    since: null
+hierarchy:
+  parent: null
+  children:
+    - senado-federal
+    - camara-dos-deputados
+related_institutions:
+  - stf
+  - presidencia-da-republica
+  - tcu
+tags:
+  - legislativo
+  - poder-legislativo
+  - bicameral
+  - leis
+  - orçamento
+sources:
+  - "https://www.congressonacional.leg.br"
+  - "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm"
+last_updated: "2026-02-23T00:00:00"

@@ -9,6 +9,7 @@ from rich.console import Console
 from src.cli.dashboard import dashboard
 from src.cli.generate import app as generate_app
 from src.cli.generate import news_app
+from src.cli.history import app as history_app
 from src.cli.knowledge import app as kb_app
 from src.cli.publish import app as publish_app
 from src.cli.review import app as review_app
@@ -33,6 +34,7 @@ app.add_typer(review_app, name="review", help="✍️  Review and approve drafts
 app.add_typer(publish_app, name="publish", help="📤 Publish to Instagram and X")
 app.add_typer(visuals_app, name="visuals", help="🎨 Generate images — carousels, profiles, timelines")
 app.add_typer(sources_app, name="sources", help="🗄️  API cache — refresh, snapshot, status")
+app.add_typer(history_app, name="history", help="📜 Historical database — politicians, votes, elections")
 
 # Register top-level commands
 app.command(name="dashboard")(dashboard)

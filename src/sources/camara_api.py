@@ -262,6 +262,93 @@ class CamaraAPI:
         return self._fetch("/partidos", params=params, force_refresh=force_refresh) or []
 
     # ------------------------------------------------------------------
+    # Legislatures
+    # ------------------------------------------------------------------
+
+    def list_legislatures(self, force_refresh: bool = False) -> list[dict]:
+        """
+        List all legislative terms (legislaturas).
+
+        Each record contains: id, dataInicio, dataFim, and uri.
+        The current legislature is the one with no dataFim.
+        """
+        params: dict = {"itens": 100, "ordem": "DESC", "ordenarPor": "id"}
+        return self._fetch("/legislaturas", params=params, force_refresh=force_refresh) or []
+
+    # ------------------------------------------------------------------
+    # CEAP Expenses
+    # ------------------------------------------------------------------
+
+    def get_deputy_expenses(
+        self,
+        deputy_id: int,
+        year: Optional[int] = None,
+        month: Optional[int] = None,
+        force_refresh: bool = False,
+    ) -> list[dict]:
+        """
+        Get CEAP (Cota para o Exercício da Atividade Parlamentar) expense records
+        for a deputy.
+
+        Args:
+            deputy_id: Numeric Câmara deputy ID
+            year:      Filter by year (e.g. 2023)
+            month:     Filter by month (1–12)
+
+        Returns a list of expense dicts with fields including:
+          ano, mes, tipoDespesa, nomeFornecedor, cnpjCpfFornecedor,
+          valorDocumento, valorLiquido, numDocumento, urlDocumento
+        """
+        params: dict = {"itens": 200, "ordem": "DESC", "ordenarPor": "ano"}
+        if year:
+            params["ano"] = year
+        if month:
+            params["mes"] = month
+
+        results = []
+        page = 1
+        while True:
+            params["pagina"] = page
+            page_data = self._fetch(
+                f"/deputados/{deputy_id}/despesas",
+                params=dict(params),
+                force_refresh=force_refresh,
+            )
+            if not page_data:
+                break
+            if isinstance(page_data, list):
+                results.extend(page_data)
+                if len(page_data) < 200:
+                    break
+            else:
+                break
+            page += 1
+
+        return results
+
+    # ------------------------------------------------------------------
+    # Voting session individual votes
+    # ------------------------------------------------------------------
+
+    def get_session_votes(
+        self, session_id: str, force_refresh: bool = False
+    ) -> list[dict]:
+        """
+        Get individual deputy votes within a specific voting session.
+
+        Returns a list of vote dicts with fields:
+          tipoVoto, dataRegistroVoto, deputado_ (sub-object with id, nome,
+          siglaPartido, siglaUf, idLegislatura, urlFoto)
+        """
+        return (
+            self._fetch(
+                f"/votacoes/{session_id}/votos",
+                force_refresh=force_refresh,
+            )
+            or []
+        )
+
+    # ------------------------------------------------------------------
     # Bulk refresh
     # ------------------------------------------------------------------
 

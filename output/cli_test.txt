@@ -1,0 +1,51 @@
+STDOUT:
+                                                                                
+ Usage: anticorrupt history [OPTIONS] COMMAND [ARGS]...                         
+                                                                                
+ 📜 Historical database — politicians, votes, elections                         
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ stats             Show record counts for every table in the historical       │
+│                   database.                                                  │
+│ fetch-wiki        Fetch historical data from Wikidata and store it in the    │
+│                   database.                                                  │
+│ enrich            Look up a person or topic on Wikipedia and display their   │
+│                   summary.                                                   │
+│ search            Full-text search the historical database.                  │
+│                   Searches names, summaries, and titles depending on the     │
+│                   type.                                                      │
+│ show              Display the full details of a historical record by ID.     │
+│ import-votes      Import a deputy's voting history from the Câmara API into  │
+│                   the database.                                              │
+│ import-expenses   Import CEAP expense records for a deputy from the Câmara   │
+│                   API.                                                       │
+│ import-elections  Download and import electoral results from the TSE open    │
+│                   data portal.                                               │
+│ export-yaml       Export a historical record as a YAML file to the knowledge │
+│                   base (data/).                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+
+STDERR:
+
+
+STATS STDOUT:
+ 📜 Historical Database — Table 
+             Stats              
+╭────────────────────┬─────────╮
+│ Table              │ Records │
+├────────────────────┼─────────┤
+│ Politicians        │       0 │
+│ Historical Events  │       0 │
+│ Votes (individual) │       0 │
+│ Election Results   │       0 │
+│ CEAP Expenses      │       0 │
+│ Legislatures       │       0 │
+├────────────────────┼─────────┤
+│ TOTAL              │       0 │
+╰────────────────────┴─────────╯
+
+STATS STDERR:

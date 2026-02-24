@@ -615,40 +615,80 @@ anticorrupt dashboard                      # Show stats overview
 
 ---
 
-## 6. Phase 2 — Visual Generation
+## 6. Phase 2 — Visual Generation + Data Resilience
 
 **Goal:** Programmatically create social media-ready images from content and knowledge base data.
+Also: build a caching layer over public government APIs so we own our data and are not dependent on third-party availability.
 
 **Duration:** 1-2 weeks
 **Depends on:** Phase 1
+
+### 6.0 Data Resilience & Source Caching
+
+**Problem:** Public government APIs (Câmara, Senado, TSE) can go offline, restrict access, or change their schemas. If we depend on live API calls, any outage breaks the platform.
+
+**Solution:** A SQLite-backed cache layer that stores every API response locally. All application code reads from the cache; the cache is refreshed on a schedule (or manually). We never lose data we've already fetched.
+
+**Data volume estimates (NOT terabytes):**
+
+| Source | Records | Estimated size |
+|---|---|---|
+| Câmara — deputies | ~513 current + history | ~5 MB |
+| Câmara — votes (10 years) | ~500k records | ~250 MB |
+| Câmara — propositions | ~200k active | ~100 MB |
+| Senado — senators + votes | ~81 senators | ~50 MB |
+| TSE — election results | Per election cycle | ~500 MB total |
+| Querido Diário (excerpts only) | Keyword-based | ~10–50 MB |
+| **Total** | | **~1 GB worst case** |
+
+All of this fits comfortably in a single SQLite file on a laptop. No server needed.
+
+**Cache strategy:**
+
+```
+API call → check cache (is it fresh?) → YES: return cached data
+                                       → NO:  fetch from API → store in cache → return
+```
+
+- Each cached record has `fetched_at` timestamp and a configurable TTL (e.g., 24h for deputy info, 1h for news)
+- **Offline mode**: if the API is unreachable, serve stale cache with a warning — never fail silently
+- **Snapshots**: weekly export of the full cache to a compressed JSON dump in `output/snapshots/` (git-ignored but portable — you can seed a new machine from a snapshot)
+- **Schema versioning**: cache records include the API schema version so migrations are detectable
+
+**New modules:**
+- `src/sources/cache.py` — generic SQLite cache with TTL + offline fallback
+- `src/sources/camara_api.py` — Câmara dos Deputados REST API client (uses cache)
+- `src/sources/senado_api.py` — Senado Federal API client (uses cache)
+
+**CLI commands added:**
+```bash
+anticorrupt sources refresh                # Refresh all API caches
+anticorrupt sources refresh --source camara
+anticorrupt sources status                 # Show cache age per source
+anticorrupt sources snapshot               # Export full cache to JSON dump
+```
 
 ### 6.1 Visual Types
 
 | Type | Use Case | Tech |
 |---|---|---|
-| **Carousel slides** | Instagram explainers (4-8 slides) | Pillow + SVG templates |
-| **Profile cards** | Public figure summaries | Pillow + SVG templates |
-| **Flowcharts** | "How a law is passed" | Graphviz |
-| **Timelines** | Historical event sequences | Custom SVG renderer |
+| **Carousel slides** | Instagram explainers (4-8 slides) | Pillow (programmatic) |
+| **Profile cards** | Public figure summaries | Pillow (programmatic) |
+| **Flowcharts** | "How a law is passed" | Pillow (programmatic) |
+| **Timelines** | Historical event sequences | Pillow (programmatic) |
 | **Network diagrams** | Relationship/power maps | NetworkX + matplotlib |
-| **Quote cards** | Key statements with attribution | Pillow + SVG templates |
+| **Quote cards** | Key statements with attribution | Pillow (programmatic) |
 
 ### 6.2 Template System
 
-Each template is an SVG file with placeholder tokens:
+All visuals are generated programmatically with Pillow (pure Python, no system dependencies).
+Layout is defined in Python dataclasses — colors, fonts, positions — not SVG files.
+This avoids needing Cairo/Inkscape installed and makes templates fully testable.
 
-```svg
-<text id="title">{{ title }}</text>
-<text id="body">{{ body }}</text>
-<text id="source">Fonte: {{ source }}</text>
-<rect id="accent" fill="{{ accent_color }}"/>
-```
-
-Python fills the tokens, renders to PNG at platform-specific dimensions:
-- Instagram post: 1080×1080
-- Instagram carousel: 1080×1080 per slide
-- X/Twitter: 1200×675
-- Story: 1080×1920
+Platform output dimensions:
+- Instagram post / carousel slide: 1080×1080
+- X/Twitter card: 1200×675
+- Instagram Story: 1080×1920
 
 ### 6.3 Color System
 
@@ -662,6 +702,21 @@ Each institution type gets a consistent color:
 | Independent Bodies | Purple | `#553C9A` |
 | Military | Dark Gray | `#2D3748` |
 | General/Neutral | Slate | `#4A5568` |
+
+### 6.4 Phase 2 Tasks
+
+| # | Task | Details |
+|---|---|---|
+| 1 | **Data cache layer** | SQLite cache with TTL, offline mode, snapshot export |
+| 2 | **Câmara API client** | Deputies, votes, propositions — with caching |
+| 3 | **Senado API client** | Senators, sessions, votes — with caching |
+| 4 | **Base renderer** | Pillow wrapper: colors, fonts, text wrapping, dimensions |
+| 5 | **Carousel generator** | Instagram slides from ContentDraft formatted text |
+| 6 | **Profile card** | PublicFigure card (name, role, party, key facts) |
+| 7 | **Timeline renderer** | Horizontal event timeline image |
+| 8 | **Network diagram** | Relationship graph via NetworkX + matplotlib |
+| 9 | **Flowchart renderer** | Institutional process diagrams |
+| 10 | **Visuals CLI** | `anticorrupt visuals generate/render-profile/render-timeline` |
 
 ---
 

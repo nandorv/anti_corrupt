@@ -12,6 +12,8 @@ from src.cli.generate import news_app
 from src.cli.knowledge import app as kb_app
 from src.cli.publish import app as publish_app
 from src.cli.review import app as review_app
+from src.cli.sources import app as sources_app
+from src.cli.visuals import app as visuals_app
 
 app = typer.Typer(
     name="anticorrupt",
@@ -29,6 +31,8 @@ app.add_typer(generate_app, name="generate", help="🤖 Generate content with AI
 app.add_typer(news_app, name="news", help="📰 News ingestion — scan feeds, summarize")
 app.add_typer(review_app, name="review", help="✍️  Review and approve drafts")
 app.add_typer(publish_app, name="publish", help="📤 Publish to Instagram and X")
+app.add_typer(visuals_app, name="visuals", help="🎨 Generate images — carousels, profiles, timelines")
+app.add_typer(sources_app, name="sources", help="🗄️  API cache — refresh, snapshot, status")
 
 # Register top-level commands
 app.command(name="dashboard")(dashboard)

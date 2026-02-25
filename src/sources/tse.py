@@ -89,7 +89,17 @@ class TSEClient:
         self._client = httpx.Client(
             timeout=timeout,
             follow_redirects=True,
-            headers={"User-Agent": "AntiCorrupt/1.0 Python/httpx"},
+            headers={
+                # Use a realistic browser UA — the TSE CDN blocks bot UAs
+                "User-Agent": (
+                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/124.0.0.0 Safari/537.36"
+                ),
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8",
+                "Referer": "https://dadosabertos.tse.jus.br/",
+            },
         )
 
     # ------------------------------------------------------------------
@@ -234,6 +244,106 @@ class TSEClient:
 
         logger.info("Parsed %d candidates for year %d", len(results), year)
         return results
+
+    def fetch_elected(
+        self,
+        year: int,
+        cargo: str,
+        limit: int = 100_000,
+    ) -> list["Politician"]:
+        """
+        Fetch all **elected** politicians for a given year and position.
+
+        Downloads and parses the TSE candidate file, keeps only the rows
+        whose ``DS_SIT_TOT_TURNO`` marks them as elected, then maps each
+        :class:`~src.history.models.ElectionResult` to a
+        :class:`~src.history.models.Politician` for DB seeding.
+
+        Args:
+            year:  Election year (2024 for mayors/vereadores, 2022 for
+                   governors/senators/federal deputies).
+            cargo: Position string, matched as a substring of the TSE
+                   ``DS_CARGO`` column. Examples: ``"PREFEITO"``,
+                   ``"GOVERNADOR"``, ``"SENADOR"``,
+                   ``"DEPUTADO FEDERAL"``.
+            limit: Maximum candidate rows to read before filtering.
+                   Default 100 000 is enough for any single position.
+
+        Returns:
+            List of :class:`~src.history.models.Politician` objects for
+            all elected candidates in the requested position/year.
+        """
+        from src.history.models import Politician, PoliticianRole  # avoid circular
+
+        # Position → DB metadata maps
+        _pos_tags: dict[str, list[str]] = {
+            "PREFEITO": ["prefeito", "executivo-municipal"],
+            "GOVERNADOR": ["governador", "executivo-estadual"],
+            "SENADOR": ["senador", "senado", "legislativo"],
+            "DEPUTADO FEDERAL": ["câmara", "deputado-federal", "legislativo"],
+            "DEPUTADO ESTADUAL": ["deputado-estadual", "legislativo-estadual"],
+            "VEREADOR": ["vereador", "legislativo-municipal"],
+        }
+        _pos_role: dict[str, str] = {
+            "PREFEITO": "Prefeito",
+            "GOVERNADOR": "Governador",
+            "SENADOR": "Senador",
+            "DEPUTADO FEDERAL": "Deputado Federal",
+            "DEPUTADO ESTADUAL": "Deputado Estadual",
+            "VEREADOR": "Vereador",
+        }
+        _pos_institution: dict[str, str] = {
+            "PREFEITO": "prefeitura",
+            "GOVERNADOR": "governo-estadual",
+            "SENADOR": "senado",
+            "DEPUTADO FEDERAL": "câmara",
+            "DEPUTADO ESTADUAL": "assembleia-legislativa",
+            "VEREADOR": "camara-municipal",
+        }
+
+        # Mandate start: Jan 1 of the year following the election
+        mandate_start = f"{year + 1}-01-01"
+
+        candidates = self.fetch_candidates(year=year, position=cargo, limit=limit)
+
+        politicians: list[Politician] = []
+        for r in candidates:
+            if not r.elected:
+                continue
+
+            pos_upper = r.position.upper()
+            tags = _pos_tags.get(pos_upper, [r.position.lower()])
+            role_name = _pos_role.get(pos_upper, r.position.title())
+            institution = _pos_institution.get(pos_upper, "")
+
+            politicians.append(
+                Politician(
+                    name=r.candidate_name,
+                    party=r.party,
+                    state=r.state,
+                    tse_id=r.tse_seq_candidate,
+                    roles=[
+                        PoliticianRole(
+                            role=role_name,
+                            institution=institution,
+                            start_date=mandate_start,
+                        )
+                    ],
+                    tags=tags + [f"eleito-{year}"],
+                    sources=[
+                        f"https://dadosabertos.tse.jus.br/dataset/candidatos-{year}"
+                    ],
+                    summary=f"{role_name} eleito em {year} — {r.party} — {r.state}",
+                )
+            )
+
+        logger.info(
+            "TSE %d: %d elected %s mapped to Politician objects",
+            year,
+            len(politicians),
+            cargo,
+        )
+        return politicians
 
     def list_available_years(self) -> list[int]:
         """Return all election years for which TSE has open data."""

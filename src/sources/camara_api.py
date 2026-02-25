@@ -24,6 +24,7 @@ from typing import Any, Optional
 
 import httpx
 
+from src.history.models import Politician, PoliticianRole
 from src.sources.cache import APICache, DEFAULT_TTL, get_cache
 
 logger = logging.getLogger(__name__)
@@ -195,6 +196,52 @@ class CamaraAPI:
             params=params,
             force_refresh=force_refresh,
         ) or []
+
+    def fetch_current_deputies(self, legislature: int = 57) -> list[Politician]:
+        """
+        Fetch all current federal deputies from the Câmara API.
+
+        Paginates through ``/deputados?idLegislatura={legislature}`` and maps
+        each raw record to a :class:`~src.history.models.Politician`.
+
+        Args:
+            legislature: Câmara legislature number (57 = 2023–2027, current).
+
+        Returns:
+            ~513 Politician objects for the requested legislature.
+        """
+        raw = self.list_deputies(legislature=legislature)
+        politicians: list[Politician] = []
+        for d in raw:
+            dep_id = d.get("id")
+            if not dep_id:
+                continue
+            politicians.append(
+                Politician(
+                    name=d.get("nome", ""),
+                    party=d.get("siglaPartido"),
+                    state=d.get("siglaUf"),
+                    camara_id=int(dep_id),
+                    roles=[
+                        PoliticianRole(
+                            role="Deputado Federal",
+                            institution="câmara",
+                            start_date="2023-02-01",
+                            end_date="2027-01-31",
+                        )
+                    ],
+                    tags=["câmara", "deputado-federal", "legislativo"],
+                    sources=[
+                        f"https://dadosabertos.camara.leg.br/api/v2/deputados/{dep_id}"
+                    ],
+                )
+            )
+        logger.info(
+            "Câmara API: fetched %d deputies for legislature %d",
+            len(politicians),
+            legislature,
+        )
+        return politicians
 
     # ------------------------------------------------------------------
     # Voting sessions

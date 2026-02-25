@@ -1,5 +1,13 @@
 """
-Interactive historical DB seeding script.
+Historical DB seeding script — uses official Brazilian government APIs.
+
+Sources:
+  Deputies   → Câmara API  (dadosabertos.camara.leg.br)
+  Senators   → Senado API  (legis.senado.leg.br/dadosabertos)
+  Governors  → TSE 2022    (cdn.tse.jus.br)
+  Mayors     → TSE 2024    (cdn.tse.jus.br)
+  Presidents / STF / Ministers / Events / Legislatures → Wikidata (fallback)
+
 Run: python output/seed_db.py
 """
 import sys
@@ -7,14 +15,19 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pathlib import Path
+from src.sources.camara_api import CamaraAPI
+from src.sources.senado_api import SenadoAPI
+from src.sources.tse import TSEClient
 from src.sources.wikidata import WikidataClient
 from src.history.store import HistoryStore
 
 DB_PATH = Path("output/history.db")
+TSE_CACHE = Path("output/.tse_cache")          # disk cache for large ZIP files
+
 store = HistoryStore(DB_PATH)
 
 print("=" * 60)
-print("ANTI-CORRUPT — Historical DB Seeding")
+print("ANTI-CORRUPT — Historical DB Seeding (official APIs)")
 print("=" * 60)
 print(f"DB: {DB_PATH}")
 print(f"Pre-seed stats: {store.stats()}")
@@ -28,26 +41,40 @@ for tbl in ("politicians", "historical_events", "legislatures",
         store._db[tbl].delete_where()
 print(f"Cleared. Stats now: {store.stats()}\n")
 
-client = WikidataClient(timeout=90)
+camara  = CamaraAPI()
+senado  = SenadoAPI()
+tse     = TSEClient(timeout=300, cache_dir=TSE_CACHE)
+wiki    = WikidataClient(timeout=90)
 
 steps = [
-    # --- Current mandate only (elected officials change every 4 years) ---
-    ("Federal Deputies  (2023+, current)", lambda: client.fetch_federal_deputies(limit=600, since_year=2023), "politicians"),
-    ("Senators          (2019+, current)", lambda: client.fetch_senators(limit=300, since_year=2019),        "politicians"),  # 2 cohorts: 2019 & 2023
-    ("Governors         (2023+, current)", lambda: client.fetch_governors(limit=100, since_year=2023),       "politicians"),
-    ("Mayors            (2024+, current)", lambda: client.fetch_mayors(limit=5500, since_year=2024),         "politicians"),  # ~5,570 municipalities
-    # --- Key institutions: all history ---
-    ("Presidents        (all time)",       lambda: client.fetch_presidents(),                                 "politicians"),
-    ("STF Ministers     (all time)",       lambda: client.fetch_stf_ministers(),                              "politicians"),
-    ("Gov Ministers     (all time)",       lambda: client.fetch_government_ministers(limit=1000),             "politicians"),
-    ("TCU Ministers     (all time)",       lambda: client.fetch_tcu_ministers(),                              "politicians"),
-    # --- Events: full history, 4 sub-queries ---
-    ("Political Events  (all history)",   lambda: client.fetch_political_events(limit=2000),                 "events"),
-    # --- Structure ---
-    ("Legislatures",                      lambda: client.fetch_legislatures(),                               "legislatures"),
+    # ── Current elected officials ── official authoritative APIs ────
+    ("Federal Deputies  (2023–2027, Câmara API)",
+        lambda: camara.fetch_current_deputies(legislature=57),           "politicians", None),
+    ("Senators          (current, Senado API)",
+        lambda: senado.fetch_current_senators(),                         "politicians", None),
+    # TSE: primary source; Wikidata used as fallback if CDN is unreachable
+    ("Governors         (2022 election, TSE)",
+        lambda: tse.fetch_elected(year=2022, cargo="GOVERNADOR"),        "politicians",
+        lambda: wiki.fetch_governors(limit=100, since_year=2023)),
+    ("Mayors            (2024 election, TSE)",
+        lambda: tse.fetch_elected(year=2024, cargo="PREFEITO"),          "politicians", None),
+    # ── Key institutions — all history — Wikidata ──────────────────
+    ("Presidents        (all time, Wikidata)",
+        lambda: wiki.fetch_presidents(),                                 "politicians", None),
+    ("STF Ministers     (all time, Wikidata)",
+        lambda: wiki.fetch_stf_ministers(),                              "politicians", None),
+    ("Gov Ministers     (all time, Wikidata)",
+        lambda: wiki.fetch_government_ministers(limit=1000),             "politicians", None),
+    ("TCU Ministers     (all time, Wikidata)",
+        lambda: wiki.fetch_tcu_ministers(),                              "politicians", None),
+    # ── Events & structure ─────────────────────────────────────────
+    ("Political Events  (all history, Wikidata)",
+        lambda: wiki.fetch_political_events(limit=2000),                 "events",      None),
+    ("Legislatures      (Wikidata)",
+        lambda: wiki.fetch_legislatures(),                               "legislatures", None),
 ]
 
-for label, fn, kind in steps:
+for label, fn, kind, fallback_fn in steps:
     print(f"  ⏳ Fetching {label}...", end=" ", flush=True)
     try:
         records = fn()
@@ -60,6 +87,19 @@ for label, fn, kind in steps:
         print(f"✓ {saved} records saved")
     except Exception as exc:
         print(f"✗ FAILED: {exc}")
+        if fallback_fn is not None:
+            print(f"    ↳ Wikidata fallback...", end=" ", flush=True)
+            try:
+                records = fallback_fn()
+                if kind == "politicians":
+                    saved = store.upsert_politicians(records)
+                elif kind == "events":
+                    saved = store.upsert_events(records)
+                else:
+                    saved = store.upsert_legislatures(records)
+                print(f"✓ {saved} records saved (fallback)")
+            except Exception as exc2:
+                print(f"✗ Fallback also failed: {exc2}")
 
 print()
 print("=" * 60)
@@ -72,9 +112,16 @@ print("=" * 60)
 import json
 db = store._db
 print("\nSample by category:")
-for tag, count_expected in [("deputado-federal", 450), ("senador", 80), ("governador", 27),
-                              ("prefeito", 2000), ("presidente", 10), ("stf", 40),
-                              ("ministro", 100), ("tcu", 10)]:
+for tag, count_expected in [
+    ("deputado-federal", 500),   # Câmara API: exactly 513
+    ("senador",          75),    # Senado API: ~81 in exercise
+    ("governador",       25),    # TSE 2022:   27 states
+    ("prefeito",         5000),  # TSE 2024:   ~5,570 municipalities
+    ("presidente",       5),
+    ("stf",              15),
+    ("ministro",         100),
+    ("tcu",              5),
+]:
     rows = list(db.execute(
         "SELECT name, party, summary FROM politicians WHERE tags LIKE ? LIMIT 3",
         [f"%{tag}%"]

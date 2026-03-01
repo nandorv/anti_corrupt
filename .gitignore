@@ -50,3 +50,8 @@ Thumbs.db
 # uv
 .uv/
 uv.lock
+
+# Large data files (downloaded from TSE/RF — regenerate with seed scripts)
+eleicoes/*.csv
+eleicoes/*.zip
+data/rf/

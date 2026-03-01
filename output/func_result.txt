@@ -1,0 +1,212 @@
+Fetching...
+TOP-LEVEL KEYS: ['dados']
+TOTAL RECORDS: 14995
+
+=== GROUPS ===
+  codGrupo=1  count=2,627  grupo=Quadro Efetivo - RJU
+  codGrupo=2  count=1,716  grupo=Cargo de Natureza Especial
+  codGrupo=5  count=547  grupo=Parlamentar
+  codGrupo=6  count=10,105  grupo=Secretário Parlamentar
+
+=== ALL FIELD NAMES ===
+['atoNomeacao', 'cargo', 'codGrupo', 'dataInicioHistorico', 'dataNomeacao', 'dataPubNomeacao', 'funcao', 'grupo', 'lotacao', 'nome', 'ponto', 'uriLotacao']
+
+=== FIRST 5 RECORDS ===
+{
+  "ponto": "P_5948",
+  "codGrupo": 1,
+  "grupo": "Quadro Efetivo - RJU",
+  "nome": "ABIDERMAN SOUZA CARVALHO",
+  "cargo": "Técnico Legislativo/Agente de Encadernação e Douração",
+  "lotacao": "DETEC/CAEDI - COORDENAÇÃO DE ADMINISTRAÇÃO DE EDIFÍCIOS",
+  "atoNomeacao": "",
+  "dataNomeacao": "",
+  "dataInicioHistorico": "1996-11-07",
+  "dataPubNomeacao": "",
+  "funcao": "FC-2 - SUPERVISOR II (C2100135)",
+  "uriLotacao": ""
+}
+
+{
+  "ponto": "P_8107",
+  "codGrupo": 1,
+  "grupo": "Quadro Efetivo - RJU",
+  "nome": "ABRAÃO DE CARVALHO SANTOS",
+  "cargo": "Analista Legislativo/Processo Legislativo e Gestão",
+  "lotacao": "CEDI/SEADE - SEÇÃO DE ATENDIMENTO E DISSEMINAÇÃO EDITORIAL",
+  "atoNomeacao": "",
+  "dataNomeacao": "",
+  "dataInicioHistorico": "2016-01-25",
+  "dataPubNomeacao": "",
+  "funcao": "",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/orgaos/100046"
+}
+
+{
+  "ponto": "P_6746",
+  "codGrupo": 1,
+  "grupo": "Quadro Efetivo - RJU",
+  "nome": "ABRAÃO GONÇALVES SAIGG",
+  "cargo": "Analista Legislativo/Processo Legislativo e Gestão",
+  "lotacao": "DECOM/ASSEDECOM - ASSESSORIA TÉCNICO-JURÍDICA - DECOM",
+  "atoNomeacao": "",
+  "dataNomeacao": "",
+  "dataInicioHistorico": "2004-01-15",
+  "dataPubNomeacao": "",
+  "funcao": "FC-1 - ASSISTENTE DE COMISSÃO",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/orgaos/102371"
+}
+
+{
+  "ponto": "P_6833",
+  "codGrupo": 1,
+  "grupo": "Quadro Efetivo - RJU",
+  "nome": "ABRAHÃO REZENDE AIDAR",
+  "cargo": "Analista Legislativo/Engenheiro",
+  "lotacao": "DETEC/COAUD - COORDENAÇÃO DE ENGENHARIA DE TELECOMUNICAÇÕES E AUDIOVISUAL",
+  "atoNomeacao": "",
+  "dataNomeacao": "",
+  "dataInicioHistorico": "2004-10-01",
+  "dataPubNomeacao": "",
+  "funcao": "FC-1 - ASSESSOR TÉCNICO I",
+  "uriLotacao": ""
+}
+
+{
+  "ponto": "P_8439",
+  "codGrupo": 1,
+  "grupo": "Quadro Efetivo - RJU",
+  "nome": "ACAUÃ LUCAS LEOTTA",
+  "cargo": "Analista Legislativo/Consultoria",
+  "lotacao": "CONLE/CONLE - CONSULTORIA LEGISLATIVA",
+  "atoNomeacao": "",
+  "dataNomeacao": "",
+  "dataInicioHistorico": "2024-08-12",
+  "dataPubNomeacao": "",
+  "funcao": "FC-3 - CONSULTOR LEGISLATIVO - ÁREA XVII",
+  "uriLotacao": ""
+}
+
+
+=== codGrupo==2 AND uriLotacao contains '/deputados/' ===
+COUNT: 1067
+
+{
+  "ponto": "P_121675",
+  "codGrupo": 2,
+  "grupo": "Cargo de Natureza Especial",
+  "nome": "ADALBERTO MONTEIRO FILHO",
+  "cargo": "CNE15",
+  "lotacao": "GAB. 4/906 - PASTOR EURICO",
+  "atoNomeacao": "ATO DO PRESIDENTE",
+  "dataNomeacao": "2023-03-10",
+  "dataInicioHistorico": "2023-03-10",
+  "dataPubNomeacao": "2023-03-10",
+  "funcao": "CNE15 - ASSISTENTE TÉCNICO DE GABINETE ADJUNTO D",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/deputados/160642"
+}
+
+{
+  "ponto": "P_124652",
+  "codGrupo": 2,
+  "grupo": "Cargo de Natureza Especial",
+  "nome": "ADEMIR ARRUDA LINS",
+  "cargo": "CNE13",
+  "lotacao": "GAB. 4/450 - ANDRÉ FERREIRA",
+  "atoNomeacao": "ATO DO PRESIDENTE",
+  "dataNomeacao": "2025-02-27",
+  "dataInicioHistorico": "2025-02-27",
+  "dataPubNomeacao": "2025-02-27",
+  "funcao": "CNE13 - ASSISTENTE TÉCNICO DE GABINETE ADJUNTO C",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/deputados/204423"
+}
+
+{
+  "ponto": "P_123609",
+  "codGrupo": 2,
+  "grupo": "Cargo de Natureza Especial",
+  "nome": "ADMARIO ALEIXO DOS SANTOS",
+  "cargo": "CNE14",
+  "lotacao": "GAB. 4/633 - FRED COSTA",
+  "atoNomeacao": "",
+  "dataNomeacao": "",
+  "dataInicioHistorico": "2024-04-22",
+  "dataPubNomeacao": "",
+  "funcao": "CNE14 - ASSESSOR TÉCNICO ADJUNTO D",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/deputados/204494"
+}
+
+{
+  "ponto": "P_125592",
+  "codGrupo": 2,
+  "grupo": "Cargo de Natureza Especial",
+  "nome": "ADRIANA ARANTES BATISTA RAMOS",
+  "cargo": "CNE10",
+  "lotacao": "GAB. 4/214 - CARLOS HENRIQUE GAGUIM",
+  "atoNomeacao": "ATO DO PRESIDENTE",
+  "dataNomeacao": "2023-05-23",
+  "dataInicioHistorico": "2023-05-26",
+  "dataPubNomeacao": "2023-05-23",
+  "funcao": "CNE10 - ASSESSOR TÉCNICO ADJUNTO B",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/deputados/178993"
+}
+
+{
+  "ponto": "P_120666",
+  "codGrupo": 2,
+  "grupo": "Cargo de Natureza Especial",
+  "nome": "ADRIANA ARAÚJO DE OLIVEIRA PAULÚCIO",
+  "cargo": "CNE12",
+  "lotacao": "GAB. 4/248 - ELI BORGES",
+  "atoNomeacao": "ATO DO PRESIDENTE",
+  "dataNomeacao": "2024-12-19",
+  "dataInicioHistorico": "2024-06-21",
+  "dataPubNomeacao": "2024-12-19",
+  "funcao": "CNE12 - ASSESSOR TÉCNICO ADJUNTO C",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/deputados/204364"
+}
+
+
+=== ALL codGrupo==2 (total=1716) - first 3 samples ===
+{
+  "ponto": "P_124845",
+  "codGrupo": 2,
+  "grupo": "Cargo de Natureza Especial",
+  "nome": "ABEL FERREIRA LEITE NETO",
+  "cargo": "CNE09",
+  "lotacao": "PRD/PRD - LIDERANÇA DO PRD",
+  "atoNomeacao": "",
+  "dataNomeacao": "",
+  "dataInicioHistorico": "2022-03-16",
+  "dataPubNomeacao": "",
+  "funcao": "CNE09 - SECRETÁRIO PARTICULAR",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/partidos/38010"
+}
+{
+  "ponto": "P_116857",
+  "codGrupo": 2,
+  "grupo": "Cargo de Natureza Especial",
+  "nome": "ADAIL RIBEIRO DE CARVALHO",
+  "cargo": "CNE11",
+  "lotacao": "PT/PT - LIDERANÇA DO PT",
+  "atoNomeacao": "ATO DO PRESIDENTE",
+  "dataNomeacao": "2023-03-27",
+  "dataInicioHistorico": "2023-04-04",
+  "dataPubNomeacao": "2023-03-27",
+  "funcao": "CNE11 - ASSISTENTE TÉCNICO DE GABINETE ADJUNTO B",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/partidos/36844"
+}
+{
+  "ponto": "P_125297",
+  "codGrupo": 2,
+  "grupo": "Cargo de Natureza Especial",
+  "nome": "ADAILTON OLIVEIRA DOS SANTOS",
+  "cargo": "CNE09",
+  "lotacao": "PL/PL - LIDERANÇA DO PL",
+  "atoNomeacao": "ATO DO PRESIDENTE",
+  "dataNomeacao": "2025-02-20",
+  "dataInicioHistorico": "2025-02-20",
+  "dataPubNomeacao": "2025-02-20",
+  "funcao": "CNE09 - ASSISTENTE TÉCNICO DE GABINETE",
+  "uriLotacao": "https://dadosabertos.camara.leg.br/api/v2/partidos/37906"
+}

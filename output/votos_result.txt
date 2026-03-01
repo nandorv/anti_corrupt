@@ -1,0 +1,2 @@
+100 sessions
+last: [{'rel': 'last', 'href': 'https://dadosabertos.camara.leg.br/api/v2/votacoes?dataInicio=2024-02-01&dataFim=2024-02-29&pagina=2&itens=100'}]

@@ -2,12 +2,19 @@
 SQLite-backed historical database.
 
 Tables:
-  politicians       — deduplicated by id (wikidata:Q... or camara:N)
+  politicians       — deduplicated by id; prefixes: tse:<seq>, csv:<file>:<name>,
+                      wikidata:Q..., camara:<n>, pol:<uuid8>
   historical_events — major political events
   votes             — individual deputy votes on propositions
-  election_results  — TSE results per candidate per election
+  election_results  — TSE results per candidate per election (elected only)
   expenses          — CEAP expense records per deputy
   legislatures      — legislative term metadata
+
+Data sources:
+  TSE consulta_cand CSV (primary)  — seed via output/seed_eleicoes.py
+  Flat CSV (nome,sede,tribunal,cargo) — seed via output/seed_magistrados.py
+                                        or `anticorrupt history import-csv <file>`
+  Wikidata / Câmara API            — legacy; use `history fetch-wiki` to supplement
 """
 
 from __future__ import annotations
@@ -22,9 +29,12 @@ from typing import Any, Optional
 import sqlite_utils
 
 from src.history.models import (
+    CabinetStaff,
+    CompanyProfile,
     Expense,
     HistoricalEvent,
     Legislature,
+    NewsItem,
     Politician,
     PoliticianRole,
     Vote,
@@ -75,6 +85,7 @@ class HistoryStore:
                     "wikidata_id": str,
                     "camara_id": int,
                     "tse_id": str,
+                    "cpf": str,
                     "summary": str,
                     "tags": str,       # JSON list
                     "sources": str,    # JSON list
@@ -87,6 +98,11 @@ class HistoryStore:
             db["politicians"].create_index(["name"])
             db["politicians"].create_index(["wikidata_id"])
             db["politicians"].create_index(["camara_id"])
+
+        # Migration: add cpf column if missing (for existing DBs)
+        existing_cols = {r[1] for r in db.execute("PRAGMA table_info(politicians)").fetchall()}
+        if "cpf" not in existing_cols:
+            db.execute("ALTER TABLE politicians ADD COLUMN cpf TEXT")
 
         if "historical_events" not in db.table_names():
             db["historical_events"].create(
@@ -194,6 +210,77 @@ class HistoryStore:
                 pk="id",
             )
 
+        if "cabinet_staff" not in db.table_names():
+            db["cabinet_staff"].create(
+                {
+                    "id": str,
+                    "deputy_camara_id": int,
+                    "deputy_name": str,
+                    "staff_name": str,
+                    "staff_cpf": str,
+                    "role": str,
+                    "start_date": str,
+                    "end_date": str,        # NULL = active at time of snapshot
+                    "legislature": int,
+                    "snapshot_month": str,  # YYYY-MM — each run creates new rows
+                    "fetched_at": str,
+                },
+                pk="id",
+            )
+            db["cabinet_staff"].create_index(["deputy_camara_id"])
+            db["cabinet_staff"].create_index(["staff_cpf"])
+            db["cabinet_staff"].create_index(["legislature"])
+            db["cabinet_staff"].create_index(["snapshot_month"])
+        else:
+            # Migration: add snapshot_month column if missing (existing DBs)
+            existing_cols = {r[1] for r in db.execute("PRAGMA table_info(cabinet_staff)").fetchall()}
+            if "snapshot_month" not in existing_cols:
+                db.execute("ALTER TABLE cabinet_staff ADD COLUMN snapshot_month TEXT DEFAULT ''")
+                db["cabinet_staff"].create_index(["snapshot_month"], if_not_exists=True)
+            if "staff_cpf" not in {idx.columns[0] for idx in db["cabinet_staff"].indexes}:
+                db["cabinet_staff"].create_index(["staff_cpf"], if_not_exists=True)
+
+        if "companies" not in db.table_names():
+            db["companies"].create(
+                {
+                    "cnpj": str,
+                    "razao_social": str,
+                    "nome_fantasia": str,
+                    "situacao_cadastral": str,
+                    "data_abertura": str,
+                    "atividade_principal": str,  # JSON
+                    "municipio": str,
+                    "uf": str,
+                    "capital_social": float,
+                    "socios": str,               # JSON QSA list
+                    "flags": str,                # JSON list of flag strings
+                    "paid_by_deputies": str,     # JSON list of deputy IDs
+                    "total_received_ceap": float,
+                    "fetched_at": str,
+                },
+                pk="cnpj",
+            )
+            db["companies"].create_index(["situacao_cadastral"])
+            db["companies"].create_index(["uf"])
+
+        if "news_items" not in db.table_names():
+            db["news_items"].create(
+                {
+                    "id": str,
+                    "url": str,
+                    "title": str,
+                    "summary": str,
+                    "published_at": str,
+                    "source": str,
+                    "source_url": str,
+                    "politician_mentions": str,  # JSON list of politician IDs
+                    "fetched_at": str,
+                },
+                pk="id",
+            )
+            db["news_items"].create_index(["published_at"])
+            db["news_items"].create_index(["source"])
+
     # ------------------------------------------------------------------
     # Politicians
     # ------------------------------------------------------------------
@@ -210,6 +297,7 @@ class HistoryStore:
             "wikidata_id": p.wikidata_id,
             "camara_id": p.camara_id,
             "tse_id": p.tse_id,
+            "cpf": p.cpf,
             "summary": p.summary,
             "tags": json.dumps(p.tags, ensure_ascii=False),
             "sources": json.dumps(p.sources, ensure_ascii=False),
@@ -227,6 +315,9 @@ class HistoryStore:
         row["education"] = json.loads(row.get("education") or "[]")
         if isinstance(row.get("fetched_at"), str):
             row["fetched_at"] = dt.datetime.fromisoformat(row["fetched_at"])
+        # Drop any DB columns not in the model
+        known = Politician.model_fields.keys()
+        row = {k: v for k, v in row.items() if k in known}
         return Politician(**row)
 
     def upsert_politician(self, p: Politician) -> None:
@@ -247,15 +338,85 @@ class HistoryStore:
             return None
 
     def search_politicians(self, query: str, limit: int = 20) -> list[Politician]:
-        rows = list(
-            self._db["politicians"].rows_where(
-                "name LIKE ? OR summary LIKE ?",
-                [f"%{query}%", f"%{query}%"],
-                limit=limit,
-                order_by="name",
+        """Search by name, summary, exact CPF, party, or exact tag value."""
+        tag_patterns = [
+            f'["{query}"%',
+            f'%, "{query}"%',
+            f'%, "{query}"]',
+            f'["{query}"]',
+        ]
+        rows = self._db.execute(
+            """
+            SELECT * FROM politicians
+            WHERE name LIKE ?
+               OR summary LIKE ?
+               OR cpf = ?
+               OR party LIKE ?
+               OR tags LIKE ?
+               OR tags LIKE ?
+               OR tags LIKE ?
+               OR tags LIKE ?
+            ORDER BY name
+            LIMIT ?
+            """,
+            [f"%{query}%", f"%{query}%", query, f"%{query}%"] + tag_patterns + [limit],
+        ).fetchall()
+        if not rows:
+            return []
+        cols = [d[1] for d in self._db.execute("PRAGMA table_info(politicians)").fetchall()]
+        return [self._row_to_pol(dict(zip(cols, row))) for row in rows]
+
+    def list_politicians_filtered(
+        self,
+        tag: Optional[str] = None,
+        state: Optional[str] = None,
+        party: Optional[str] = None,
+        source_prefix: Optional[str] = None,  # e.g. 'tse' or 'csv'
+        position: Optional[str] = None,        # matches election_results.position
+        limit: int = 50,
+        offset: int = 0,
+    ) -> list[Politician]:
+        """Return politicians with optional filters on tag/state/party/source/position."""
+        conditions: list[str] = []
+        params: list[Any] = []
+
+        if tag:
+            # Match exact tag value inside the JSON array to avoid substring collisions
+            # e.g. 'stf' should not match 'westfalia' via LIKE
+            conditions.append("(tags LIKE ? OR tags LIKE ? OR tags LIKE ? OR tags LIKE ?)")
+            params += [
+                f'["{tag}"%',        # ["stf", ...]
+                f'%, "{tag}"%',      # [..., "stf", ...]
+                f'%, "{tag}"]',      # [..., "stf"]
+                f'["{tag}"]',        # ["stf"] (only element)
+            ]
+        if state:
+            conditions.append("state = ?")
+            params.append(state.upper())
+        if party:
+            conditions.append("party LIKE ?")
+            params.append(f"%{party.upper()}%")
+        if source_prefix:
+            conditions.append("id LIKE ?")
+            params.append(f"{source_prefix}:%")
+        if position:
+            # join to election_results for position filter
+            conditions.append(
+                "id IN (SELECT 'tse:' || tse_seq_candidate FROM election_results "
+                "WHERE position LIKE ?)"
             )
-        )
-        return [self._row_to_pol(r) for r in rows]
+            params.append(f"%{position.upper()}%")
+
+        where = " AND ".join(conditions) if conditions else "1=1"
+        params += [limit, offset]
+        rows = self._db.execute(
+            f"SELECT * FROM politicians WHERE {where} ORDER BY name LIMIT ? OFFSET ?",
+            params,
+        ).fetchall()
+        if not rows:
+            return []
+        cols = [d[1] for d in self._db.execute("PRAGMA table_info(politicians)").fetchall()]
+        return [self._row_to_pol(dict(zip(cols, row))) for row in rows]
 
     def list_politicians(self, limit: int = 100, offset: int = 0) -> list[Politician]:
         rows = list(
@@ -560,6 +721,62 @@ class HistoryStore:
         return self._db["expenses"].count
 
     # ------------------------------------------------------------------
+    # Cabinet Staff
+    # ------------------------------------------------------------------
+
+    def _staff_to_row(self, s: CabinetStaff) -> dict:
+        return {
+            "id": s.id,
+            "deputy_camara_id": s.deputy_camara_id,
+            "deputy_name": s.deputy_name,
+            "staff_name": s.staff_name,
+            "staff_cpf": s.staff_cpf,
+            "role": s.role,
+            "start_date": s.start_date,
+            "end_date": s.end_date,
+            "legislature": s.legislature,
+            "snapshot_month": s.snapshot_month,
+            "fetched_at": s.fetched_at.isoformat(),
+        }
+
+    def upsert_staff(self, staff: list[CabinetStaff]) -> int:
+        """Upsert a batch of cabinet staff records (idempotent)."""
+        if not staff:
+            return 0
+        rows = [self._staff_to_row(s) for s in staff]
+        self._db["cabinet_staff"].insert_all(rows, replace=True)
+        return len(rows)
+
+    def get_deputy_staff(
+        self,
+        deputy_camara_id: int,
+        active_only: bool = False,
+    ) -> list[CabinetStaff]:
+        """Return all staff (or only currently active) for a given deputy."""
+        where = "deputy_camara_id = ?"
+        params: list[Any] = [deputy_camara_id]
+        if active_only:
+            where += " AND end_date IS NULL"
+        rows = self._db.execute(
+            f"SELECT * FROM cabinet_staff WHERE {where} ORDER BY start_date DESC",
+            params,
+        ).fetchall()
+        cols = [d[1] for d in self._db.execute("PRAGMA table_info(cabinet_staff)").fetchall()]
+        result = []
+        for row in rows:
+            d = dict(zip(cols, row))
+            if isinstance(d.get("fetched_at"), str):
+                d["fetched_at"] = dt.datetime.fromisoformat(d["fetched_at"])
+            result.append(CabinetStaff(**d))
+        return result
+
+    def count_staff(self) -> int:
+        try:
+            return self._db["cabinet_staff"].count
+        except Exception:
+            return 0
+
+    # ------------------------------------------------------------------
     # Legislatures
     # ------------------------------------------------------------------
 
@@ -591,6 +808,130 @@ class HistoryStore:
         return result
 
     # ------------------------------------------------------------------
+    # Companies
+    # ------------------------------------------------------------------
+
+    def _company_to_row(self, c: CompanyProfile) -> dict:
+        return {
+            "cnpj": c.cnpj,
+            "razao_social": c.razao_social,
+            "nome_fantasia": c.nome_fantasia,
+            "situacao_cadastral": c.situacao_cadastral,
+            "data_abertura": c.data_abertura,
+            "atividade_principal": c.atividade_principal,
+            "municipio": c.municipio,
+            "uf": c.uf,
+            "capital_social": c.capital_social,
+            "socios": c.socios,
+            "flags": json.dumps(c.flags, ensure_ascii=False),
+            "paid_by_deputies": json.dumps(c.paid_by_deputies, ensure_ascii=False),
+            "total_received_ceap": c.total_received_ceap,
+            "fetched_at": c.fetched_at.isoformat(),
+        }
+
+    def upsert_companies(self, companies: list[CompanyProfile]) -> int:
+        if not companies:
+            return 0
+        rows = [self._company_to_row(c) for c in companies]
+        self._db["companies"].insert_all(rows, replace=True)
+        return len(rows)
+
+    def get_company(self, cnpj: str) -> Optional[CompanyProfile]:
+        try:
+            row = dict(self._db["companies"].get(cnpj))
+            row["flags"] = json.loads(row.get("flags") or "[]")
+            row["paid_by_deputies"] = json.loads(row.get("paid_by_deputies") or "[]")
+            if isinstance(row.get("fetched_at"), str):
+                row["fetched_at"] = dt.datetime.fromisoformat(row["fetched_at"])
+            return CompanyProfile(**row)
+        except Exception:
+            return None
+
+    def count_companies(self) -> int:
+        try:
+            return self._db["companies"].count
+        except Exception:
+            return 0
+
+    def flagged_companies(self, flag: Optional[str] = None) -> list[dict]:
+        """Return companies with flags, optionally filtered to a specific flag."""
+        if flag:
+            rows = self._db.execute(
+                "SELECT cnpj, razao_social, flags, total_received_ceap, situacao_cadastral "
+                "FROM companies WHERE flags LIKE ? ORDER BY total_received_ceap DESC",
+                [f'%"{flag}"%'],
+            ).fetchall()
+        else:
+            rows = self._db.execute(
+                "SELECT cnpj, razao_social, flags, total_received_ceap, situacao_cadastral "
+                "FROM companies WHERE flags != '[]' ORDER BY total_received_ceap DESC",
+            ).fetchall()
+        return [
+            {
+                "cnpj": r[0],
+                "razao_social": r[1],
+                "flags": json.loads(r[2] or "[]"),
+                "total_received_ceap": r[3],
+                "situacao_cadastral": r[4],
+            }
+            for r in rows
+        ]
+
+    # ------------------------------------------------------------------
+    # News Items
+    # ------------------------------------------------------------------
+
+    def _news_to_row(self, n: NewsItem) -> dict:
+        return {
+            "id": n.id,
+            "url": n.url,
+            "title": n.title,
+            "summary": n.summary,
+            "published_at": n.published_at,
+            "source": n.source,
+            "source_url": n.source_url,
+            "politician_mentions": json.dumps(n.politician_mentions, ensure_ascii=False),
+            "fetched_at": n.fetched_at.isoformat(),
+        }
+
+    def upsert_news_items(self, items: list[NewsItem]) -> int:
+        if not items:
+            return 0
+        rows = [self._news_to_row(n) for n in items]
+        self._db["news_items"].insert_all(rows, replace=True)
+        return len(rows)
+
+    def count_news_items(self) -> int:
+        try:
+            return self._db["news_items"].count
+        except Exception:
+            return 0
+
+    def recent_news(self, limit: int = 50, politician_id: Optional[str] = None) -> list[dict]:
+        """Return recent news, optionally filtered to a specific politician."""
+        if politician_id:
+            rows = self._db.execute(
+                "SELECT id, title, url, published_at, source, politician_mentions "
+                "FROM news_items WHERE politician_mentions LIKE ? "
+                "ORDER BY published_at DESC LIMIT ?",
+                [f'%"{politician_id}"%', limit],
+            ).fetchall()
+        else:
+            rows = self._db.execute(
+                "SELECT id, title, url, published_at, source, politician_mentions "
+                "FROM news_items ORDER BY published_at DESC LIMIT ?",
+                [limit],
+            ).fetchall()
+        return [
+            {
+                "id": r[0], "title": r[1], "url": r[2],
+                "published_at": r[3], "source": r[4],
+                "politician_mentions": json.loads(r[5] or "[]"),
+            }
+            for r in rows
+        ]
+
+    # ------------------------------------------------------------------
     # Stats
     # ------------------------------------------------------------------
 
@@ -602,6 +943,9 @@ class HistoryStore:
             "votes",
             "election_results",
             "expenses",
+            "cabinet_staff",
+            "companies",
+            "news_items",
             "legislatures",
         ]:
             try:

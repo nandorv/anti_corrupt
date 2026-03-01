@@ -1,0 +1,39 @@
+=== list: tag=stf ===
+  csv:magistrados_brasil:alexandre_de_moraes  Alexandre de Moraes  ['stf', 'magistrado']
+  csv:magistrados_brasil:andré_mendonça  André Mendonça  ['stf', 'magistrado']
+  csv:magistrados_brasil:cristiano_zanin  Cristiano Zanin  ['stf', 'magistrado']
+  csv:magistrados_brasil:cármen_lúcia  Cármen Lúcia  ['stf', 'magistrado']
+  csv:magistrados_brasil:dias_toffoli  Dias Toffoli  ['stf', 'magistrado']
+
+=== list: tag=magistrado, state=DF ===
+  csv:magistrados_brasil:afrânio_vilela  Afrânio Vilela  state=DF
+  csv:magistrados_brasil:alexandre_laranjeira  Alexandre Laranjeira  state=DF
+  csv:magistrados_brasil:alexandre_vasconcelos  Alexandre Vasconcelos  state=DF
+  csv:magistrados_brasil:alexandre_de_moraes  Alexandre de Moraes  state=DF
+  csv:magistrados_brasil:ana_carolina_roman  Ana Carolina Roman  state=DF
+
+=== list: source_prefix=csv ===
+  csv:magistrados_brasil:adriana_pileggi  Adriana Pileggi
+  csv:magistrados_brasil:afrânio_vilela  Afrânio Vilela
+  csv:magistrados_brasil:alcides_martins  Alcides Martins
+  csv:magistrados_brasil:alda_basto  Alda Basto
+
+=== list: position=SENADOR ===
+  tse:10001714547  ALAN RICK MIRANDA  AC
+  tse:210001610438  ANTONIO HAMILTON MARTINS MOURÃO  RS
+  tse:60001633582  CAMILO SOBREIRA DE SANTANA  CE
+  tse:130001671677  CLEITON GONTIJO DE AZEVEDO  MG
+
+=== search: CPF exact ===
+  search('03861274418') → ['FABIO MICHEY COSTA DA SILVA']
+
+=== search: tag substring ===
+  search('executivo_federal') → ['Alexandre Padilha', 'Alexandre Silveira', 'Aloizio Mercadante']
+
+=== show: tse: prefix ===
+  get_politician('tse:100001599082') → ROSEANA SARNEY MURAD
+
+=== show: csv: prefix ===
+  get_politician('csv:magistrados_brasil:adriana_pileggi') → Adriana Pileggi
+
+All smoke tests passed ✓

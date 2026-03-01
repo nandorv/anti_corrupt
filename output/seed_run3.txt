@@ -1,0 +1,75 @@
+============================================================
+ANTI-CORRUPT — Historical DB Seeding (official APIs)
+============================================================
+DB: output/history.db
+Pre-seed stats: {'politicians': 1362, 'historical_events': 764, 'votes': 0, 'election_results': 0, 'expenses': 0, 'legislatures': 11}
+
+Clearing existing data for fresh seed...
+Cleared. Stats now: {'politicians': 0, 'historical_events': 0, 'votes': 0, 'election_results': 0, 'expenses': 0, 'legislatures': 0}
+
+  ⏳ Fetching Federal Deputies  (2023–2027, Câmara API)... ✓ 715 records saved
+  ⏳ Fetching Senators          (current, Senado API)... ✓ 81 records saved
+  ⏳ Fetching Governors         (2022 election, TSE)... ✗ FAILED: Download failed for https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2022.zip: Client error '403 Forbidden' for url 'https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2022.zip'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
+  ⏳ Fetching Mayors            (2024 election, TSE)... ✗ FAILED: Download failed for https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2024.zip: Client error '403 Forbidden' for url 'https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2024.zip'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
+  ⏳ Fetching Presidents        (all time, Wikidata)... ✓ 53 records saved
+  ⏳ Fetching STF Ministers     (all time, Wikidata)... ✓ 45 records saved
+  ⏳ Fetching Gov Ministers     (all time, Wikidata)... ✓ 488 records saved
+  ⏳ Fetching TCU Ministers     (all time, Wikidata)... ✓ 8 records saved
+  ⏳ Fetching Political Events  (all history, Wikidata)... ✓ 764 records saved
+  ⏳ Fetching Legislatures      (Wikidata)... ✓ 11 records saved
+
+============================================================
+FINAL STATS:
+  politicians                1,281
+  historical_events            764
+  votes                          0
+  election_results               0
+  expenses                       0
+  legislatures                  11
+============================================================
+
+Sample by category:
+
+  ✓ [deputado-federal] → 632 total  (expected ≥250)
+      Abilio Brunini                       PL               
+      Acácio Favacho                       MDB              
+      Adail Filho                          REPUBLICANOS     
+
+  ✓ [senador] → 81 total  (expected ≥37)
+      Alan Rick                            REPUBLICANOS     
+      Alessandro Vieira                    MDB              
+      Ana Paula Lobato                     PDT              
+
+  ⚠️ [governador] → 0 total  (expected ≥12)
+
+  ⚠️ [prefeito] → 0 total  (expected ≥2500)
+
+  ✓ [presidente] → 44 total  (expected ≥2)
+      Prudente de Morais                   Partido Republicano Paulista  3.º presidente do Brasil (1894–1898)
+      Francisco Gros                       —                economista brasileiro, ex presidente do Banco Central do Bra
+      Afonso Pena                          Partido Liberal  6.º presidente do Brasil (1906–1909)
+
+  ✓ [stf] → 31 total  (expected ≥7)
+      Carlos Alberto Madeira               —                jurista brasileiro, Ex-ministro do Supremo Tribunal Federal
+      Teori Zavascki                       —                magistrado brasileiro, Ministro do Supremo Tribunal Federal 
+      Joaquim Barbosa                      Partido Socialista Brasileiro  jurista e advogado brasileiro, ex-ministro do Supremo Tribun
+
+  ✓ [ministro] → 516 total  (expected ≥50)
+      Carlos Alberto Madeira               —                jurista brasileiro, Ex-ministro do Supremo Tribunal Federal
+      Teori Zavascki                       —                magistrado brasileiro, Ministro do Supremo Tribunal Federal 
+      Joaquim Barbosa                      Partido Socialista Brasileiro  jurista e advogado brasileiro, ex-ministro do Supremo Tribun
+
+  ✓ [tcu] → 8 total  (expected ≥2)
+      Agenor Lafayette de Roure            —                político brasileiro
+      Aroldo Cedraz                        Democratas       médico veterinário e político brasileiro
+      Aurelino Leal                        —                advogado, jornalista e político brasileiro, presidente do es
+
+Sample events (most recent 5):
+  [election] 2025-02-01  Eleição para mesa diretora da Câmara dos Deputados do Brasil
+  [election] 2024-10-27  Eleição municipal de Belém em 2024
+    → Parte das Eleições Municipais de 2024
+  [election] 2024-10-27  Eleição municipal de Camaçari em 2024
+  [election] 2024-10-27  Eleição municipal de Aracaju em 2024
+  [election] 2024-10-27  Eleições municipais de Campo Grande em 2024

@@ -1,0 +1,68 @@
+:root {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --border:    #30363d;
+  --text:      #e6edf3;
+  --muted:     #8b949e;
+  --accent:    #58a6ff;
+  --green:     #3fb950;
+  --orange:    #d29922;
+  --red:       #f85149;
+  --purple:    #bc8cff;
+  --pink:      #f778ba;
+  --cyan:      #39d2c0;
+
+  --source-bg:   #0d2240;   --source-border: #4a9eff;
+  --script-bg:   #1e1035;   --script-border: #b380ff;
+  --store-bg:    #0b1f1e;   --store-border:  #4ecdc4;
+  --output-bg:   #2a1a05;   --output-border: #ffa726;
+  --api-bg:      #250d0d;   --api-border:    #ff6b6b;
+  --model-bg:    #0d1f2d;   --model-border:  #45b7d1;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root { width: 100vw; height: 100vh; }
+
+/* ── React Flow overrides ───────────────────────── */
+.react-flow__background { background: var(--bg) !important; }
+.react-flow__minimap {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+}
+.react-flow__controls {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+}
+.react-flow__controls button {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+.react-flow__controls button:hover { background: #21262d !important; }
+.react-flow__controls button svg { fill: var(--text) !important; }
+.react-flow__attribution { display: none !important; }
+.react-flow__edge-path { stroke-width: 1.8 !important; }
+
+/* Edge labels */
+.react-flow__edge-text {
+  font-size: 10px !important;
+  fill: var(--muted) !important;
+}
+.react-flow__edge-textbg {
+  fill: var(--bg) !important;
+  fill-opacity: 0.85 !important;
+}
+

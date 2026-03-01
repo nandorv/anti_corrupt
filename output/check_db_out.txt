@@ -1,0 +1,47 @@
+CREATE TABLE [votes] (
+   [id] TEXT PRIMARY KEY,
+   [deputy_id] TEXT,
+   [deputy_camara_id] INTEGER,
+   [deputy_name] TEXT,
+   [proposition_id] TEXT,
+   [proposition_title] TEXT,
+   [proposition_type] TEXT,
+   [vote] TEXT,
+   [date] TEXT,
+   [session_id] TEXT,
+   [party] TEXT,
+   [state] TEXT,
+   [fetched_at] TEXT
+);
+CREATE INDEX [idx_votes_deputy_id]
+    ON [votes] ([deputy_id]);
+CREATE INDEX [idx_votes_proposition_id]
+    ON [votes] ([proposition_id]);
+CREATE INDEX [idx_votes_date]
+    ON [votes] ([date]);
+vote:517b71ffee04|camara:227275|227275|Mariana Carvalho|camara:prop:2408105|REQ 4134/2023||NÃO|2024-02-28|2408105-8|REPUBLICANOS|MA|2026-02-26T20:26:35.631977
+vote:67c1a366d0cf|camara:115200|115200|Raniery Paulino|camara:prop:2408105|REQ 4134/2023||SIM|2024-02-28|2408105-8|REPUBLICANOS|PB|2026-02-26T20:26:35.632100
+vote:e469a2f49740|camara:215043|215043|Josivaldo JP|camara:prop:2408105|REQ 4134/2023||SIM|2024-02-28|2408105-8|PSD|MA|2026-02-26T20:26:35.632127
+===
+CREATE TABLE [expenses] (
+   [id] TEXT PRIMARY KEY,
+   [deputy_id] TEXT,
+   [deputy_camara_id] INTEGER,
+   [deputy_name] TEXT,
+   [year] INTEGER,
+   [month] INTEGER,
+   [category] TEXT,
+   [supplier] TEXT,
+   [supplier_cnpj_cpf] TEXT,
+   [value] FLOAT,
+   [document_number] TEXT,
+   [description] TEXT,
+   [fetched_at] TEXT
+);
+CREATE INDEX [idx_expenses_deputy_id]
+    ON [expenses] ([deputy_id]);
+CREATE INDEX [idx_expenses_year_month]
+    ON [expenses] ([year], [month]);
+ceap:98107202c705|camara:204549|204549|AJ Albuquerque|2024|4|MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR|AMORETTO CAFES EXPRESSO LTDA|08532429000131|780.0|1168||2026-02-26T20:28:36.718153
+ceap:ccc409a6fd2f|camara:204549|204549|AJ Albuquerque|2024|5|MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR|AMORETTO CAFES EXPRESSO LTDA|08532429000131|780.0|1258||2026-02-26T20:28:36.718285
+ceap:a08ef5d27707|camara:204549|204549|AJ Albuquerque|2024|6|MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR|AMORETTO CAFES EXPRESSO LTDA|08532429000131|780.0|1344||2026-02-26T20:28:36.718320

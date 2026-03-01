@@ -55,6 +55,7 @@ class Politician(BaseModel):
     wikidata_id: Optional[str] = None    # e.g. "Q12345"
     camara_id: Optional[int] = None      # numeric ID from Câmara API
     tse_id: Optional[str] = None
+    cpf: Optional[str] = None            # Brazilian CPF (11 digits, from TSE)
     tags: list[str] = Field(default_factory=list)
     sources: list[str] = Field(default_factory=list)
     summary: Optional[str] = None
@@ -172,6 +173,28 @@ class Expense(BaseModel):
             self.id = "ceap:" + hashlib.sha1(key.encode()).hexdigest()[:12]
 
 
+class CabinetStaff(BaseModel):
+    """A staff member (secretário parlamentar) employed in a deputy's cabinet."""
+
+    id: str = ""
+    deputy_camara_id: int                # Câmara deputy numeric ID
+    deputy_name: str                     # deputy's parlamentar name
+    staff_name: str                      # full name of the staff member
+    staff_cpf: Optional[str] = None      # CPF (11 digits, may be absent/masked)
+    role: str = ""                       # CHEFE_DE_GABINETE | SECRETARIO_PARLAMENTAR | ASSESSOR_PARLAMENTAR | etc.
+    start_date: Optional[str] = None     # YYYY-MM-DD (appointment date from source)
+    end_date: Optional[str] = None       # None = active at time of snapshot
+    legislature: int = 0                 # 56, 57, ...
+    snapshot_month: str = ""             # YYYY-MM — month this snapshot was taken
+    fetched_at: dt.datetime = Field(default_factory=dt.datetime.utcnow)
+
+    def model_post_init(self, __context: Any) -> None:
+        if not self.id:
+            # snapshot_month is part of the key so each periodic run creates new rows
+            key = f"{self.deputy_camara_id}:{self.staff_cpf or self.staff_name}:{self.start_date or ''}:{self.snapshot_month}"
+            self.id = "staff:" + hashlib.sha1(key.encode()).hexdigest()[:12]
+
+
 class Legislature(BaseModel):
     """Metadata about a Brazilian legislative term (legislatura)."""
 
@@ -180,3 +203,55 @@ class Legislature(BaseModel):
     end_date: Optional[str] = None
     description: str = ""
     fetched_at: dt.datetime = Field(default_factory=dt.datetime.utcnow)
+
+
+class CompanyProfile(BaseModel):
+    """
+    A Brazilian company enriched from Receita Federal / BrasilAPI.
+
+    Primary key: cnpj (14 digits, no separators).
+    socios stores the QSA (Quadro Societário e Administrativo) as returned by
+    BrasilAPI — each entry has 'nome', 'cpf_cnpj_socio', 'qualificacao_socio'.
+    Note: BrasilAPI may return partially masked CPFs (***111***-**).
+    Full-CPF cross-references require the RF bulk dump.
+    """
+
+    cnpj: str                             # 14-digit string, primary key
+    razao_social: str = ""                # legal name
+    nome_fantasia: Optional[str] = None   # trade name
+    situacao_cadastral: Optional[str] = None  # ATIVA | INAPTA | BAIXADA | SUSPENSA
+    data_abertura: Optional[str] = None   # YYYY-MM-DD
+    atividade_principal: Optional[str] = None  # JSON string: [{codigo, descricao}]
+    municipio: Optional[str] = None
+    uf: Optional[str] = None
+    capital_social: Optional[float] = None
+    socios: Optional[str] = None          # JSON string: [{nome, cpf_cnpj_socio, qualificacao_socio}]
+    # Computed anti-corruption flags (set by lookup_cnpj.py)
+    flags: list[str] = Field(default_factory=list)
+    # Deputies who paid this CNPJ (set by lookup_cnpj.py for quick reference)
+    paid_by_deputies: list[str] = Field(default_factory=list)  # ["camara:12345", ...]
+    total_received_ceap: float = 0.0      # total R$ received via CEAP
+    fetched_at: dt.datetime = Field(default_factory=dt.datetime.utcnow)
+
+
+class NewsItem(BaseModel):
+    """
+    A news article ingested from an RSS feed or other source.
+
+    id: URL-hash so the same article is never duplicated.
+    politician_mentions: list of politician IDs matched from the article text.
+    """
+
+    id: str = ""
+    url: str
+    title: str
+    summary: str = ""
+    published_at: Optional[str] = None   # ISO datetime string
+    source: str = ""                      # feed name, e.g. "agencia_brasil"
+    source_url: str = ""                  # feed URL
+    politician_mentions: list[str] = Field(default_factory=list)  # politician IDs
+    fetched_at: dt.datetime = Field(default_factory=dt.datetime.utcnow)
+
+    def model_post_init(self, __context: Any) -> None:
+        if not self.id:
+            self.id = "news:" + hashlib.sha1(self.url.encode()).hexdigest()[:12]

@@ -1,0 +1,50 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Host dadosabertos.camara.leg.br:443 was resolved.
+* IPv6: (none)
+* IPv4: 200.219.133.190, 200.219.133.191, 200.219.133.192
+*   Trying 200.219.133.190:443...
+* Connected to dadosabertos.camara.leg.br (200.219.133.190) port 443
+* ALPN: curl offers h2,http/1.1
+* (304) (OUT), TLS handshake, Client hello (1):
+} [331 bytes data]
+*  CAfile: /etc/ssl/cert.pem
+*  CApath: none
+* (304) (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* (304) (IN), TLS handshake, Unknown (8):
+{ [15 bytes data]
+* (304) (IN), TLS handshake, Certificate (11):
+{ [2872 bytes data]
+* (304) (IN), TLS handshake, CERT verify (15):
+{ [520 bytes data]
+* (304) (IN), TLS handshake, Finished (20):
+{ [36 bytes data]
+* (304) (OUT), TLS handshake, Finished (20):
+} [36 bytes data]
+* SSL connection using TLSv1.3 / AEAD-CHACHA20-POLY1305-SHA256 / [blank] / UNDEF
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=dadosabertos.camara.leg.br
+*  start date: Jan 28 23:22:57 2026 GMT
+*  expire date: Apr 28 23:22:56 2026 GMT
+*  subjectAltName: host "dadosabertos.camara.leg.br" matched cert's "dadosabertos.camara.leg.br"
+*  issuer: C=US; O=Let's Encrypt; CN=R12
+*  SSL certificate verify ok.
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://dadosabertos.camara.leg.br/api/v2/votacoes/2418084-8/votos
+* [HTTP/2] [1] [:method: GET]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: dadosabertos.camara.leg.br]
+* [HTTP/2] [1] [:path: /api/v2/votacoes/2418084-8/votos]
+* [HTTP/2] [1] [user-agent: curl/8.7.1]
+* [HTTP/2] [1] [accept: */*]
+> GET /api/v2/votacoes/2418084-8/votos HTTP/2
+> Host: dadosabertos.camara.leg.br
+> User-Agent: curl/8.7.1
+> Accept: */*
+> 
+* Request completely sent off
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0< HTTP/2 200 
+< server: envoy
+< date: Wed, 25 Feb 2026 22:46:10 GMT

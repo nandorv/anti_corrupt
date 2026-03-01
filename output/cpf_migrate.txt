@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+    HistoryStore()  # runs migration
+    ~~~~~~~~~~~~^^
+  File "/Users/fernandovieira/Documents/anti_corrupt/src/history/store.py", line 56, in __init__
+    self._ensure_tables()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/fernandovieira/Documents/anti_corrupt/src/history/store.py", line 65, in _ensure_tables
+    if "politicians" not in db.table_names():
+                            ~~~~~~~~~~~~~~^^
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/sqlite_utils/db.py", line 636, in table_names
+    return [r[0] for r in self.execute(sql).fetchall()]
+                          ~~~~~~~~~~~~^^^^^
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/sqlite_utils/db.py", line 542, in execute
+    return self.conn.execute(sql)
+           ~~~~~~~~~~~~~~~~~^^^^^
+sqlite3.OperationalError: database is locked

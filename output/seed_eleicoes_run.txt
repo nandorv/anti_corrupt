@@ -1,0 +1,18 @@
+🗑  Dropped old DB
+📥 2022  (eleicoes/consulta_cand_2022_BRASIL.csv)...
+   1,709 elected found
+   ✓ 1,709 politicians (1,709 with CPF) | 1,709 results
+📥 2024  (eleicoes/consulta_cand_2024_BRASIL.csv)...
+   69,246 elected found
+   ✓ 69,246 politicians (69,246 with CPF) | 69,246 results
+
+==================================================
+FINAL DB STATS:
+  politicians                   70,955
+  historical_events                  0
+  votes                              0
+  election_results              70,942
+  expenses                           0
+  legislatures                       0
+==================================================
+DONE

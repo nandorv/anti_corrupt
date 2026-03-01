@@ -1,0 +1,95 @@
+============================================================
+ANTI-CORRUPT — Historical DB Seeding (official APIs)
+============================================================
+DB: output/history.db
+Pre-seed stats: {'politicians': 632, 'historical_events': 0, 'votes': 0, 'election_results': 0, 'expenses': 0, 'legislatures': 0}
+
+Clearing existing data for fresh seed...
+Cleared. Stats now: {'politicians': 0, 'historical_events': 0, 'votes': 0, 'election_results': 0, 'expenses': 0, 'legislatures': 0}
+
+  ⏳ Fetching Federal Deputies  (2023–2027, Câmara API)... ✓ 715 records saved
+  ⏳ Fetching Senators          (current, Senado API)... ✓ 81 records saved
+  ⏳ Fetching Governors         (2022 election, TSE)... ✗ FAILED: Download failed for https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2022.zip: Client error '403 Forbidden' for url 'https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2022.zip'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
+  ⏳ Fetching Mayors            (2024 election, TSE)... ✗ FAILED: Download failed for https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2024.zip: Client error '403 Forbidden' for url 'https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2024.zip'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
+  ⏳ Fetching Presidents        (all time, Wikidata)... Traceback (most recent call last):
+  File "/Users/fernandovieira/Documents/anti_corrupt/output/seed_db.py", line 78, in <module>
+    records = fn()
+  File "/Users/fernandovieira/Documents/anti_corrupt/output/seed_db.py", line 61, in <lambda>
+    lambda: wiki.fetch_presidents(),                                 "politicians"),
+            ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/fernandovieira/Documents/anti_corrupt/src/sources/wikidata.py", line 323, in fetch_presidents
+    fallback = self._fetch_by_description_filter(
+        filter_regex="presidente.*república|presidente.*brasil",
+    ...<3 lines>...
+        limit=60,
+    )
+  File "/Users/fernandovieira/Documents/anti_corrupt/src/sources/wikidata.py", line 627, in _fetch_by_description_filter
+    bindings = self._query(sparql)
+  File "/Users/fernandovieira/Documents/anti_corrupt/src/sources/wikidata.py", line 63, in _query
+    response = self._client.get(
+        SPARQL_ENDPOINT,
+        params={"query": sparql, "format": "json"},
+    )
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1053, in get
+    return self.request(
+           ~~~~~~~~~~~~^
+        "GET",
+        ^^^^^^
+    ...<7 lines>...
+        extensions=extensions,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+        pool_request.request
+    )
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpcore/_sync/connection.py", line 103, in handle_request
+    return self._connection.handle_request(request)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpcore/_sync/http11.py", line 136, in handle_request
+    raise exc
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpcore/_sync/http11.py", line 106, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpcore/_sync/http11.py", line 177, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpcore/_sync/http11.py", line 217, in _receive_event
+    data = self._network_stream.read(
+        self.READ_NUM_BYTES, timeout=timeout
+    )
+  File "/Users/fernandovieira/Documents/anti_corrupt/.venv/lib/python3.14/site-packages/httpcore/_backends/sync.py", line 128, in read
+    return self._sock.recv(max_bytes)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/fernandovieira/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/ssl.py", line 1285, in recv
+    return self.read(buflen)
+           ~~~~~~~~~^^^^^^^^
+  File "/Users/fernandovieira/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/ssl.py", line 1140, in read
+    return self._sslobj.read(len)
+           ~~~~~~~~~~~~~~~~~^^^^^
+KeyboardInterrupt

@@ -1,0 +1,323 @@
+#!/usr/bin/env python3
+"""
+seed_deputies.py — Bulk-import votes and CEAP expenses for all 513
+                    Deputados Federais (57th legislature, 2023-2027).
+
+Strategy:
+  • Reads the list of deputies directly from our DB (tse: records with
+    tag DEPUTADO FEDERAL) so we never need to call list_deputies first.
+  • Falls back to the Câmara API list if no DB records are found.
+  • Fetches votes and expenses per deputy with a configurable rate-limit
+    delay between requests to stay well under API limits.
+  • Uses the existing APICache layer — if the cache already has a fresh
+    response for a deputy, no network call is made.
+  • Idempotent: safe to run multiple times; already-cached deputies are
+    skipped instantly.
+  • Supports --resume: skips deputies whose data is already in the DB.
+
+Usage:
+    python output/seed_deputies.py                         # all deputies
+    python output/seed_deputies.py --limit 20              # first 20 only
+    python output/seed_deputies.py --resume                # skip already done
+    python output/seed_deputies.py --votes-only            # skip expenses
+    python output/seed_deputies.py --expenses-only         # skip votes
+    python output/seed_deputies.py --start-year 2023       # expenses from year
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import logging
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
+from src.history.models import Expense, Vote
+from src.history.store import HistoryStore
+from src.sources.camara_api import CamaraAPI, CamaraAPIError
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)-7s  %(message)s",
+    datefmt="%H:%M:%S",
+)
+log = logging.getLogger(__name__)
+
+DB_PATH        = ROOT / "output" / "history.db"
+LEGISLATURE    = 57          # 2023-2027
+START_YEAR     = 2023        # fetch expenses from this year onward
+END_YEAR       = 2026        # inclusive
+
+# ── Rate-limit knobs ──────────────────────────────────────────────────────────
+# The Câmara API has no published rate limit but has been observed to throttle
+# at ~60 req/min. We stay conservative: 1 req/s with a burst guard.
+DELAY_BETWEEN_DEPUTIES = 1.2    # seconds between deputies
+DELAY_AFTER_ERROR      = 5.0    # seconds after any error / 429
+MAX_RETRIES            = 3      # per deputy before giving up
+
+
+def _parse_votes(raw: list[dict], deputy_id: int) -> list[Vote]:
+    votes: list[Vote] = []
+    for rv in raw:
+        try:
+            vote_type = (rv.get("tipoVoto") or "").strip().upper()
+            prop_info = rv.get("proposicao_") or {}
+            prop_id   = str(prop_info.get("id", ""))
+            prop_title = (prop_info.get("ementa") or prop_info.get("descricao") or "")[:200]
+            prop_type  = prop_info.get("siglaTipo") or None
+            date_raw   = rv.get("dataHoraVoto") or ""
+            date       = date_raw[:10] if date_raw else ""
+            session_id = str(rv.get("id", ""))
+
+            if not vote_type or not date:
+                continue
+
+            dep_sub = rv.get("deputado_") or {}
+            votes.append(Vote(
+                deputy_camara_id=deputy_id,
+                deputy_id=f"camara:{deputy_id}",
+                deputy_name=dep_sub.get("nome", f"Deputy {deputy_id}"),
+                proposition_id=f"camara:prop:{prop_id}" if prop_id else f"camara:session:{session_id}",
+                proposition_title=prop_title,
+                proposition_type=prop_type,
+                vote=vote_type,
+                date=date,
+                session_id=session_id,
+                party=dep_sub.get("siglaPartido"),
+                state=dep_sub.get("siglaUf"),
+            ))
+        except Exception as exc:
+            log.debug("Vote row skipped for deputy %d: %s", deputy_id, exc)
+    return votes
+
+
+def _parse_expenses(raw: list[dict], deputy_id: int, deputy_name: str) -> list[Expense]:
+    expenses: list[Expense] = []
+    for re_ in raw:
+        try:
+            value = float(re_.get("valorDocumento") or re_.get("valorLiquido") or 0)
+            if value <= 0:
+                continue
+            exp_year  = int(re_.get("ano") or 0)
+            exp_month = int(re_.get("mes") or 0)
+            if exp_year == 0:
+                continue
+            expenses.append(Expense(
+                deputy_camara_id=deputy_id,
+                deputy_id=f"camara:{deputy_id}",
+                deputy_name=deputy_name,
+                year=exp_year,
+                month=exp_month,
+                category=(re_.get("tipoDespesa") or "OUTROS").strip(),
+                supplier=(re_.get("nomeFornecedor") or "").strip(),
+                supplier_cnpj_cpf=(re_.get("cnpjCpfFornecedor") or None),
+                value=value,
+                document_number=(re_.get("numDocumento") or None),
+                description=(re_.get("descricao") or None),
+            ))
+        except Exception as exc:
+            log.debug("Expense row skipped for deputy %d: %s", deputy_id, exc)
+    return expenses
+
+
+def _get_deputies(store: HistoryStore, api: CamaraAPI) -> list[tuple[int, str]]:
+    """
+    Return list of (camara_id, name) for all Deputados Federais.
+
+    Priority:
+      1. election_results table — tse_seq_candidate → join politicians → camara_id
+         (these were pre-matched via CPF in a previous step — see note below)
+      2. politicians table — id LIKE 'camara:%'  (legacy Wikidata/API imports)
+      3. Live Câmara API  — fallback if DB is empty for deputies
+    """
+    db = store._db
+
+    # Strategy 1: tse records tagged DEPUTADO FEDERAL — use tse_id → camara_id
+    # We need the Câmara numeric ID. Best source is the politicians table where
+    # camara_id is populated (legacy), OR we call list_deputies and match by name/CPF.
+    # For now, use strategy 2+3 to get the authoritative Câmara IDs.
+
+    # Strategy 2: legacy camara: prefixed records
+    rows = db.execute(
+        "SELECT camara_id, name FROM politicians "
+        "WHERE camara_id IS NOT NULL AND id LIKE 'camara:%' "
+        "ORDER BY name"
+    ).fetchall()
+    if rows:
+        log.info("Using %d deputies from DB (camara: prefix)", len(rows))
+        return [(int(r[0]), r[1]) for r in rows]
+
+    # Strategy 3: fetch live from API and match against our tse: records by name
+    log.info("No camara: records in DB — fetching deputy list from Câmara API...")
+    raw = api.list_deputies(legislature=LEGISLATURE)
+    log.info("Fetched %d deputies from Câmara API", len(raw))
+
+    deputies: list[tuple[int, str]] = []
+    for d in raw:
+        dep_id = d.get("id")
+        name   = d.get("nome") or ""
+        if dep_id:
+            deputies.append((int(dep_id), name))
+
+    # Upsert them as politicians so they're in DB for next time
+    from src.history.models import Politician, PoliticianRole
+    pol_records = []
+    for dep_id, name in deputies:
+        party = next((d.get("siglaPartido") for d in raw if d.get("id") == dep_id), None)
+        state = next((d.get("siglaUf")     for d in raw if d.get("id") == dep_id), None)
+        pol_records.append(Politician(
+            id=f"camara:{dep_id}",
+            name=name, party=party, state=state,
+            camara_id=dep_id,
+            roles=[PoliticianRole(
+                role="Deputado Federal",
+                institution="camara_dos_deputados",
+                start_date="2023-02-01", end_date="2027-01-31",
+            )],
+            tags=["DEPUTADO FEDERAL", str(LEGISLATURE), "legislativo"],
+            sources=[f"camara:legislature:{LEGISLATURE}"],
+        ))
+    store.upsert_politicians(pol_records)
+    log.info("Upserted %d deputies into politicians table", len(pol_records))
+    return deputies
+
+
+def _already_done(store: HistoryStore, deputy_id: int) -> tuple[bool, bool]:
+    """Return (has_votes, has_expenses) for a given camara deputy_id."""
+    db = store._db
+    has_votes = db.execute(
+        "SELECT 1 FROM votes WHERE deputy_camara_id = ? LIMIT 1", [deputy_id]
+    ).fetchone() is not None
+    has_expenses = db.execute(
+        "SELECT 1 FROM expenses WHERE deputy_camara_id = ? LIMIT 1", [deputy_id]
+    ).fetchone() is not None
+    return has_votes, has_expenses
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Bulk-import Câmara votes and expenses")
+    parser.add_argument("--limit",         type=int,   default=0,    help="Max deputies to process (0 = all)")
+    parser.add_argument("--start-year",    type=int,   default=START_YEAR, help="Expenses start year")
+    parser.add_argument("--end-year",      type=int,   default=END_YEAR,   help="Expenses end year")
+    parser.add_argument("--resume",        action="store_true", help="Skip deputies already in DB")
+    parser.add_argument("--votes-only",    action="store_true", help="Import only votes")
+    parser.add_argument("--expenses-only", action="store_true", help="Import only expenses")
+    parser.add_argument("--delay",         type=float, default=DELAY_BETWEEN_DEPUTIES,
+                        help=f"Seconds between deputies (default: {DELAY_BETWEEN_DEPUTIES})")
+    args = parser.parse_args()
+
+    do_votes    = not args.expenses_only
+    do_expenses = not args.votes_only
+
+    store = HistoryStore(DB_PATH)
+    api   = CamaraAPI()
+
+    deputies = _get_deputies(store, api)
+    if args.limit:
+        deputies = deputies[:args.limit]
+
+    total     = len(deputies)
+    total_v   = 0
+    total_e   = 0
+    skipped   = 0
+    errors    = 0
+
+    log.info("Starting bulk import — %d deputies | votes=%s expenses=%s", total, do_votes, do_expenses)
+    print(f"\n{'─'*60}")
+    print(f"  Deputies to process : {total:,}")
+    print(f"  Votes               : {'yes' if do_votes else 'no'}")
+    print(f"  Expenses            : {f'yes ({args.start_year}–{args.end_year})' if do_expenses else 'no'}")
+    print(f"  Delay between deps  : {args.delay}s")
+    print(f"  Resume mode         : {'yes' if args.resume else 'no'}")
+    print(f"{'─'*60}\n")
+
+    for i, (dep_id, dep_name) in enumerate(deputies, 1):
+        prefix = f"[{i:>3}/{total}]  {dep_name:<40}  (id={dep_id})"
+
+        # Resume check
+        if args.resume:
+            has_v, has_e = _already_done(store, dep_id)
+            skip_v = do_votes    and has_v
+            skip_e = do_expenses and has_e
+            if skip_v and skip_e:
+                print(f"{prefix}  ✓ already done — skipped")
+                skipped += 1
+                continue
+
+        n_votes = n_expenses = 0
+
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                # ── Votes ─────────────────────────────────────────────────
+                if do_votes and not (args.resume and has_v if args.resume else False):
+                    raw_votes = api.get_deputy_votes(
+                        dep_id,
+                        start_date=f"{args.start_year}-01-01",
+                    )
+                    votes = _parse_votes(raw_votes, dep_id)
+                    if votes:
+                        store.upsert_votes(votes)
+                        n_votes = len(votes)
+                        total_v += n_votes
+
+                # ── Expenses (per year) ───────────────────────────────────
+                if do_expenses and not (args.resume and has_e if args.resume else False):
+                    all_raw_exp: list[dict] = []
+                    for yr in range(args.start_year, args.end_year + 1):
+                        raw_exp = api.get_deputy_expenses(dep_id, year=yr)
+                        all_raw_exp.extend(raw_exp)
+                        # small pause between year-pages to be polite
+                        if yr < args.end_year:
+                            time.sleep(0.3)
+
+                    expenses = _parse_expenses(all_raw_exp, dep_id, dep_name)
+                    if expenses:
+                        store.upsert_expenses(expenses)
+                        n_expenses = len(expenses)
+                        total_e += n_expenses
+
+                # ── Success ───────────────────────────────────────────────
+                status = []
+                if do_votes:    status.append(f"{n_votes} votes")
+                if do_expenses: status.append(f"R${sum(e.value for e in expenses if do_expenses and expenses):,.0f} expenses ({n_expenses} recs)")
+                print(f"{prefix}  ✓  {' | '.join(status)}")
+                break  # exit retry loop
+
+            except CamaraAPIError as exc:
+                if attempt < MAX_RETRIES:
+                    log.warning("  API error (attempt %d/%d): %s — retrying in %.0fs",
+                                attempt, MAX_RETRIES, exc, DELAY_AFTER_ERROR)
+                    time.sleep(DELAY_AFTER_ERROR)
+                else:
+                    log.error("  ✗ FAILED after %d attempts: %s", MAX_RETRIES, exc)
+                    errors += 1
+                    print(f"{prefix}  ✗ FAILED — {exc}")
+
+            except Exception as exc:
+                log.error("  ✗ Unexpected error for deputy %d: %s", dep_id, exc)
+                errors += 1
+                print(f"{prefix}  ✗ ERROR — {exc}")
+                break
+
+        # Rate-limit pause between deputies
+        if i < total:
+            time.sleep(args.delay)
+
+    # ── Final summary ─────────────────────────────────────────────────────────
+    stats = store.stats()
+    print(f"\n{'='*60}")
+    print(f"  Processed  : {total - skipped - errors:,} deputies")
+    print(f"  Skipped    : {skipped:,}  (already in DB)")
+    print(f"  Errors     : {errors:,}")
+    print(f"  Votes saved: {total_v:,}  (DB total: {stats['votes']:,})")
+    print(f"  Expenses   : {total_e:,}  (DB total: {stats['expenses']:,})")
+    print(f"{'='*60}")
+    print("DONE")
+
+
+if __name__ == "__main__":
+    main()

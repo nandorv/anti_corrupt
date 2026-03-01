@@ -1,15 +1,21 @@
 """
 History CLI — build and query the historical political database.
 
+Primary data (seeded from TSE CSV files):
+  output/seed_eleicoes.py   — elected officials from TSE consulta_cand CSVs
+  output/seed_magistrados.py — judges + ministers from magistrados_brasil.csv
+
 Commands:
   stats              — row counts per table
-  fetch-wiki         — pull data from Wikidata (no key required)
-  enrich             — look up a person or topic on Wikipedia
-  search             — full-text search across the database
+  list               — list politicians with optional filters
+  search             — full-text / CPF / tag search
   show               — display one record by ID
+  import-csv         — import any CSV with nome,sede,tribunal,cargo
+  import-elections   — (re-)import a TSE consulta_cand local CSV file
   import-votes       — import voting history from the Câmara API
   import-expenses    — import CEAP expenses from the Câmara API
-  import-elections   — import electoral results from TSE
+  fetch-wiki         — supplement data from Wikidata (no key required)
+  enrich             — look up a person or topic on Wikipedia
   export-yaml        — write a record as a YAML file to data/
 """
 
@@ -94,6 +100,148 @@ def stats() -> None:
     table.add_section()
     table.add_row("[bold]TOTAL[/bold]", f"[bold]{total:,}[/bold]")
     console.print(table)
+
+
+# ---------------------------------------------------------------------------
+# list
+# ---------------------------------------------------------------------------
+
+
+@app.command("list")
+def list_politicians(
+    tag: Optional[str] = typer.Option(
+        None, "--tag", "-t",
+        help="Filter by tag (e.g. stf, magistrado, executivo_federal, DEPUTADO FEDERAL)",
+    ),
+    state: Optional[str] = typer.Option(None, "--state", "-s", help="State UF (e.g. SP, RJ)"),
+    party: Optional[str] = typer.Option(None, "--party", "-p", help="Party (e.g. PT, PL)"),
+    source: Optional[str] = typer.Option(
+        None, "--source",
+        help="ID prefix filter: tse | csv | wikidata | camara",
+    ),
+    position: Optional[str] = typer.Option(
+        None, "--position",
+        help="Election position substring (e.g. DEPUTADO FEDERAL, SENADOR)",
+    ),
+    limit: int = typer.Option(30, "--limit", "-n", help="Max results to show"),
+) -> None:
+    """
+    List politicians from the database with optional filters.
+
+    Examples:
+      history list --tag stf
+      history list --tag magistrado --limit 50
+      history list --position "DEPUTADO FEDERAL" --state SP
+      history list --source tse --party PT --limit 20
+    """
+    store = _store()
+    politicians = store.list_politicians_filtered(
+        tag=tag, state=state, party=party,
+        source_prefix=source, position=position, limit=limit,
+    )
+
+    if not politicians:
+        console.print("[yellow]No politicians found with those filters.[/yellow]")
+        raise typer.Exit(0)
+
+    active_filters = []
+    if tag:      active_filters.append(f"tag={tag}")
+    if state:    active_filters.append(f"state={state}")
+    if party:    active_filters.append(f"party={party}")
+    if source:   active_filters.append(f"source={source}")
+    if position: active_filters.append(f"position={position}")
+    title = "Politicians" + (f" — {', '.join(active_filters)}" if active_filters else "")
+
+    t = Table(title=title, box=box.SIMPLE, show_header=True)
+    t.add_column("ID", style="dim", no_wrap=True)
+    t.add_column("Name", style="bold")
+    t.add_column("State", width=5)
+    t.add_column("Party", width=8)
+    t.add_column("Role / Position")
+    t.add_column("Tags", style="dim")
+
+    for p in politicians:
+        role_str = p.roles[0].role if p.roles else "—"
+        tags_str = ", ".join(p.tags[:3]) + ("…" if len(p.tags) > 3 else "")
+        t.add_row(p.id, p.name, p.state or "—", p.party or "—", role_str, tags_str)
+
+    console.print(t)
+    console.print(f"[dim]Showing {len(politicians)} of {store.count_politicians():,} politicians[/dim]")
+
+
+# ---------------------------------------------------------------------------
+# import-csv
+# ---------------------------------------------------------------------------
+
+
+@app.command("import-csv")
+def import_csv_file(
+    path: str = typer.Argument(..., help="CSV file path (nome,sede,tribunal,cargo)"),
+    source_tag: Optional[str] = typer.Option(
+        None, "--source", "-s", help="Source tag override (default: csv:<filename>)"
+    ),
+    mandate_start: Optional[str] = typer.Option(
+        None, "--start", help="Role start date YYYY-MM-DD"
+    ),
+    mandate_end: Optional[str] = typer.Option(
+        None, "--end", help="Role end date YYYY-MM-DD"
+    ),
+    dry_run: bool = typer.Option(False, "--dry-run"),
+) -> None:
+    """
+    Import politicians from a flat CSV file (nome, sede, tribunal, cargo).
+
+    This is the standard format for all non-electoral imports: judges,
+    ministers, council members, etc.
+
+    Examples:
+      history import-csv eleicoes/magistrados_brasil.csv
+      history import-csv data/novos_ministros.csv --start 2025-01-01
+    """
+    from src.sources.csv_import import CSVImporter
+    from pathlib import Path as _Path
+
+    csv_path = _Path(path)
+    if not csv_path.exists():
+        console.print(f"[red]File not found: {path}[/red]")
+        raise typer.Exit(1)
+
+    with console.status(f"Parsing {csv_path.name}…"):
+        try:
+            politicians = CSVImporter.load(
+                csv_path,
+                source_tag=source_tag,
+                mandate_start=mandate_start,
+                mandate_end=mandate_end,
+            )
+        except ValueError as exc:
+            console.print(f"[red]CSV format error: {exc}[/red]")
+            raise typer.Exit(1)
+
+    console.print(f"  Parsed [bold]{len(politicians):,}[/bold] politicians from {csv_path.name}")
+
+    if dry_run:
+        # Show a preview table
+        t = Table(title=f"Preview — {csv_path.name}", box=box.SIMPLE)
+        t.add_column("ID", style="dim")
+        t.add_column("Name", style="bold")
+        t.add_column("State")
+        t.add_column("Role")
+        t.add_column("Institution")
+        for p in politicians[:10]:
+            r = p.roles[0] if p.roles else None
+            t.add_row(p.id, p.name, p.state or "—", r.role if r else "—", r.institution if r else "—")
+        if len(politicians) > 10:
+            t.add_row("…", f"(+{len(politicians)-10} more)", "", "", "")
+        console.print(t)
+        console.print("[dim]Dry-run: nothing written.[/dim]")
+        return
+
+    store = _store()
+    saved = store.upsert_politicians(politicians)
+    console.print(f"[green]✓ Upserted {saved:,} politicians from {csv_path.name}[/green]")
+    totals = store.stats()
+    console.print(f"[dim]Total politicians in DB: {totals['politicians']:,}[/dim]")
 
 
 # ---------------------------------------------------------------------------
@@ -249,14 +397,15 @@ def search(
         politicians = store.search_politicians(query, limit=limit)
         if politicians:
             t = Table(title=f"Politicians matching '{query}'", box=box.SIMPLE)
-            t.add_column("ID", style="dim")
+            t.add_column("ID", style="dim", no_wrap=True)
             t.add_column("Name", style="bold")
             t.add_column("Party")
             t.add_column("State")
+            t.add_column("CPF", style="dim")
             t.add_column("Roles")
             for p in politicians:
                 role_str = _fmt_list([r.role for r in p.roles], max_items=2)
-                t.add_row(p.id, p.name, p.party or "—", p.state or "—", role_str)
+                t.add_row(p.id, p.name, p.party or "—", p.state or "—", p.cpf or "—", role_str)
             console.print(t)
 
     if type in ("all", "event"):
@@ -311,8 +460,11 @@ def show(
     """Display the full details of a historical record by ID."""
     store = _store()
 
+    # All known politician ID prefixes
+    POL_PREFIXES = ("wikidata:", "camara:", "pol:", "tse:", "csv:")
+
     # Try politicians first
-    if record_id.startswith("wikidata:") or record_id.startswith("camara:") or record_id.startswith("pol:"):
+    if any(record_id.startswith(p) for p in POL_PREFIXES):
         pol = store.get_politician(record_id)
         if pol:
             _show_politician(pol)
@@ -527,58 +679,150 @@ def import_expenses(
 
 @app.command("import-elections")
 def import_elections(
-    year: int = typer.Option(..., "--year", "-y", help="Election year (e.g. 2022)"),
-    state: Optional[str] = typer.Option(None, "--state", "-s", help="UF filter (e.g. SP)"),
-    position: Optional[str] = typer.Option(
-        None, "--position", "-p", help="Position filter substring (e.g. DEPUTADO FEDERAL)"
+    file: str = typer.Argument(
+        ...,
+        help="Path to a local TSE consulta_cand CSV file (e.g. eleicoes/consulta_cand_2022_BRASIL.csv)",
     ),
-    limit: int = typer.Option(2000, "--limit", "-n", help="Max records to import"),
+    year: int = typer.Option(
+        ..., "--year", "-y",
+        help="Election year encoded in this file (e.g. 2022 or 2024)",
+    ),
+    skip_cargo: Optional[str] = typer.Option(
+        None, "--skip",
+        help="Comma-separated cargo names to exclude (e.g. 'VEREADOR,VICE-PREFEITO')",
+    ),
     dry_run: bool = typer.Option(False, "--dry-run"),
-    cache_dir: Optional[str] = typer.Option(
-        None, "--cache-dir", help="Directory to cache downloaded TSE ZIP files"
-    ),
 ) -> None:
     """
-    Download and import electoral results from the TSE open data portal.
+    Import elected candidates from a local TSE consulta_cand CSV file.
 
-    Downloads a ZIP file (~50–200 MB) from cdn.tse.jus.br.
-    Use --cache-dir to avoid re-downloading on subsequent runs.
+    The file must be a TSE 'consulta_cand' semicolon-delimited CSV in
+    Latin-1 encoding (standard TSE open-data format).
 
-    Example:
-      history import-elections --year 2022 --position "DEPUTADO FEDERAL" --state SP
+    Only ELECTED candidates are imported (DS_SIT_TOT_TURNO in
+    ELEITO / ELEITO POR QP / ELEITO POR MÉDIA).
+
+    Examples:
+      history import-elections eleicoes/consulta_cand_2022_BRASIL.csv --year 2022
+      history import-elections eleicoes/consulta_cand_2024_BRASIL.csv --year 2024 --skip VEREADOR
     """
-    from src.sources.tse import TSEClient, ELECTION_YEARS
+    import csv as _csv
+    from pathlib import Path as _Path
+    from src.history.models import PoliticianRole, ElectionResult
 
-    if year not in ELECTION_YEARS:
-        console.print(f"[red]Year {year} not available. Use one of: {ELECTION_YEARS}[/red]")
+    csv_path = _Path(file)
+    if not csv_path.exists():
+        console.print(f"[red]File not found: {file}[/red]")
         raise typer.Exit(1)
 
-    cache_path = Path(cache_dir) if cache_dir else None
+    ELECTED = {"ELEITO", "ELEITO POR QP", "ELEITO POR MÉDIA"}
+    CARGO_META = {
+        "DEPUTADO FEDERAL":   ("Deputado Federal",        "camara_dos_deputados",     "2023-02-01", "2027-01-31"),
+        "DEPUTADO ESTADUAL":  ("Deputado Estadual",       "assembleia_legislativa",   "2023-01-01", "2026-12-31"),
+        "DEPUTADO DISTRITAL": ("Deputado Distrital",      "camara_legislativa_df",    "2023-01-01", "2026-12-31"),
+        "SENADOR":            ("Senador",                 "senado_federal",           "2023-02-01", "2031-01-31"),
+        "GOVERNADOR":         ("Governador",              "governo_estadual",         "2023-01-01", "2026-12-31"),
+        "VICE-GOVERNADOR":    ("Vice-Governador",         "governo_estadual",         "2023-01-01", "2026-12-31"),
+        "1º SUPLENTE":        ("1º Suplente Senado",      "senado_federal",           "2023-02-01", None),
+        "2º SUPLENTE":        ("2º Suplente Senado",      "senado_federal",           "2023-02-01", None),
+        "PRESIDENTE":         ("Presidente da República", "presidencia_da_republica", "2023-01-01", "2026-12-31"),
+        "VICE-PRESIDENTE":    ("Vice-Presidente",         "presidencia_da_republica", "2023-01-01", "2026-12-31"),
+        "PREFEITO":           ("Prefeito",                "prefeitura_municipal",     "2025-01-01", "2028-12-31"),
+        "VEREADOR":           ("Vereador",                "camara_municipal",         "2025-01-01", "2028-12-31"),
+    }
+    MANDATE_BY_YEAR = {2022: ("2023-01-01", "2026-12-31"), 2024: ("2025-01-01", "2028-12-31")}
+    skip_set = {s.strip().upper() for s in (skip_cargo or "").split(",") if s.strip()}
+
+    def _get(row, idx, col):
+        i = idx.get(col)
+        return row[i].strip('"') if i is not None and i < len(row) else ""
+
+    def _null(val):
+        return None if val in ("#NULO", "", "#NE") else val
+
+    politicians_out: list = []
+    results_out: list[ElectionResult] = []
+    seen: set[str] = set()
+    skipped = 0
+    default_start, default_end = MANDATE_BY_YEAR.get(year, ("2023-01-01", None))
+    source_tag = f"tse:consulta_cand_{year}"
+
+    _csv.field_size_limit(10_000_000)
+    with console.status(f"Parsing {csv_path.name}…"):
+        with open(csv_path, encoding="latin1", errors="replace") as f:
+            reader = _csv.reader(f, delimiter=";")
+            headers = [h.strip('"') for h in next(reader)]
+            idx = {h: i for i, h in enumerate(headers)}
+
+            for row in reader:
+                try:
+                    if _get(row, idx, "DS_SIT_TOT_TURNO") not in ELECTED:
+                        continue
+                    cargo = _get(row, idx, "DS_CARGO")
+                    if cargo in skip_set:
+                        continue
+                    seq = _get(row, idx, "SQ_CANDIDATO")
+                    if seq in seen:
+                        continue
+                    seen.add(seq)
+
+                    name       = _get(row, idx, "NM_CANDIDATO")
+                    party      = _get(row, idx, "SG_PARTIDO")
+                    uf         = _get(row, idx, "SG_UF")
+                    cpf        = _null(_get(row, idx, "NR_CPF_CANDIDATO"))
+                    birth_date = _null(_get(row, idx, "DT_NASCIMENTO"))
+                    municipio  = _null(_get(row, idx, "NM_UE"))
+                    turno      = _get(row, idx, "NR_TURNO") or "1"
+                    colig      = _null(_get(row, idx, "NM_COLIGACAO"))
+                    nr         = _get(row, idx, "NR_CANDIDATO")
+
+                    if birth_date and len(birth_date) == 10 and birth_date[2] == "/":
+                        d, m, y = birth_date.split("/")
+                        birth_date = f"{y}-{m}-{d}"
+
+                    meta = CARGO_META.get(cargo)
+                    from src.history.models import Politician as _Politician
+                    role = PoliticianRole(
+                        role=meta[0] if meta else cargo,
+                        institution=meta[1] if meta else "desconhecida",
+                        start_date=meta[2] if meta else default_start,
+                        end_date=meta[3] if meta else default_end,
+                        notes=municipio if year == 2024 else None,
+                    )
+                    politicians_out.append(_Politician(
+                        id=f"tse:{seq}", name=name, party=party, state=uf,
+                        birth_date=birth_date, tse_id=seq, cpf=cpf,
+                        roles=[role], tags=[cargo, str(year), "eleito"],
+                        sources=[source_tag],
+                    ))
+                    results_out.append(ElectionResult(
+                        year=year, state=uf,
+                        municipality=municipio if year == 2024 else None,
+                        position=cargo, candidate_name=name, candidate_number=nr,
+                        candidate_cpf=cpf, party=party, coalition=colig,
+                        elected=True, round=int(turno) if turno.isdigit() else 1,
+                        tse_seq_candidate=seq,
+                    ))
+                except Exception:
+                    skipped += 1
+
+    console.print(
+        f"  Parsed [bold]{len(politicians_out):,}[/bold] elected candidates"
+        + (f"  ({skipped} rows skipped)" if skipped else "")
+    )
+
+    if dry_run:
+        console.print(f"[dim]Dry-run: would upsert {len(politicians_out):,} politicians and {len(results_out):,} election results.[/dim]")
+        return
+
     store = _store()
-
-    with console.status(f"Downloading TSE data for {year}…  (this may take a minute)"):
-        try:
-            with TSEClient(cache_dir=cache_path) as tse:
-                results = tse.fetch_candidates(
-                    year=year,
-                    state=state,
-                    position=position,
-                    limit=limit,
-                )
-        except Exception as exc:
-            console.print(f"[red]TSE download failed: {exc}[/red]")
-            raise typer.Exit(1)
-
-    console.print(f"  Parsed {len(results):,} candidate records for {year}")
-
-    if not dry_run:
-        saved = store.upsert_election_results(results)
-        console.print(f"[green]✓ Saved {saved:,} election records for {year}[/green]")
-    else:
-        elected = sum(1 for r in results if r.elected)
-        console.print(
-            f"[dim]Dry-run: would save {len(results):,} records ({elected} elected)[/dim]"
-        )
+    p_saved = store.upsert_politicians(politicians_out)
+    r_saved = store.upsert_election_results(results_out)
+    with_cpf = sum(1 for p in politicians_out if p.cpf)
+    console.print(
+        f"[green]✓ {p_saved:,} politicians ({with_cpf:,} with CPF) | "
+        f"{r_saved:,} election results saved[/green]"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -623,7 +867,7 @@ def export_yaml(
             "tags": pol.tags,
             "sources": pol.sources,
             "last_updated": dt.datetime.utcnow().isoformat(),
-            "_source": "wikidata",
+            "_source": pol.id.split(":")[0],  # tse / csv / wikidata / camara
         }
         target_dir = Path(output_dir) if output_dir else _DATA_DIR / "figures"
         target_dir.mkdir(parents=True, exist_ok=True)

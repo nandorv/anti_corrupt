@@ -1,0 +1,85 @@
+21:54:30  INFO     === VOTE IMPORT (session-centric) ===
+21:54:30  INFO     Fetching sessions for 2023-01-01 → 2023-01-31
+21:54:42  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes?itens=100&dataInicio=2023-01-01&dataFim=2023-01-31&pagina=1 "HTTP/1.1 200 OK"
+21:54:42  INFO       12 sessions found for 2023-01
+21:54:42  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/448154-56/votos "HTTP/1.1 200 OK"
+21:54:42  INFO       [1/12] session 448154-56               0 votes  Em 02/04/2009 Aprovado por Unanimidade o Parecer.(
+21:54:43  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/104333-70/votos "HTTP/1.1 200 OK"
+21:54:43  INFO       [2/12] session 104333-70               0 votes  [PARECER DADO AO PL 5269/2001 E CONSIDERADO VÁLIDO
+21:54:44  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/266409-127/votos "HTTP/1.1 200 OK"
+21:54:44  INFO       [3/12] session 266409-127              0 votes  [PARECER CONSIDERADO VÁLIDO, NOS TERMOS DO § 2º DO
+21:54:45  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/266409-126/votos "HTTP/1.1 200 OK"
+21:54:45  INFO       [4/12] session 266409-126              0 votes  [PARECER CONSIDERADO VÁLIDO, NOS TERMOS DO § 2º DO
+21:54:46  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/110085-159/votos "HTTP/1.1 200 OK"
+21:54:46  INFO       [5/12] session 110085-159              0 votes  PARECER CONSIDERADO VÁLIDO, NOS TERMOS DO § 2º DO 
+21:54:47  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2345501-28/votos "HTTP/1.1 200 OK"
+21:54:47  INFO       [6/12] session 2345501-28              0 votes  Aprovada a Redação Final assinada pelo Relator, De
+21:54:48  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2345501-26/votos "HTTP/1.1 200 OK"
+21:54:48  INFO       [7/12] session 2345501-26              0 votes  Aprovado o Projeto de Decreto Legislativo nº 1, de
+21:54:49  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2345501-25/votos "HTTP/1.1 200 OK"
+21:54:49  INFO       [8/12] session 2345501-25              0 votes  Rejeitado o Requerimento.
+21:54:50  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2345501-18/votos "HTTP/1.1 200 OK"
+21:54:50  INFO       [9/12] session 2345501-18              0 votes  Realizar o encaminhamento da MSC-14/2023 à CCJC (t
+21:54:51  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2345501-17/votos "HTTP/1.1 200 OK"
+21:54:51  INFO       [10/12] session 2345501-17              0 votes  Realizar o encaminhamento da MSC-14/2023 à CCJC (t
+21:54:52  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2345502-6/votos "HTTP/1.1 200 OK"
+21:54:52  INFO       [11/12] session 2345502-6               0 votes  Aprovado, por unanimidade, o Requerimento de Urgên
+21:54:53  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2345508-7/votos "HTTP/1.1 200 OK"
+21:54:53  INFO       [12/12] session 2345508-7               0 votes  Apresentação do Voto em Separado n. 1 MESA, pela D
+21:54:53  INFO     Fetching sessions for 2023-02-01 → 2023-02-28
+21:54:59  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes?itens=100&dataInicio=2023-02-01&dataFim=2023-02-28&pagina=1 "HTTP/1.1 200 OK"
+21:54:59  INFO       25 sessions found for 2023-02
+21:55:00  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2324989-43/votos "HTTP/1.1 200 OK"
+21:55:00  INFO       [1/25] session 2324989-43              0 votes  Aprovada a Redação Final assinada pelo Dep. Rui Fa
+21:55:01  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2324989-41/votos "HTTP/1.1 200 OK"
+21:55:01  INFO       [2/25] session 2324989-41              0 votes  Aprovado o Projeto de Decreto Legislativo nº 168, 
+21:55:02  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2267323-54/votos "HTTP/1.1 200 OK"
+21:55:02  INFO       [3/25] session 2267323-54              0 votes  Aprovada a Redação Final assinada pela relatora De
+21:55:03  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2267323-52/votos "HTTP/1.1 200 OK"
+21:55:03  INFO       [4/25] session 2267323-52              0 votes  Aprovado o Substitutivo ao Projeto de Lei nº 5.543
+21:55:04  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2324977-62/votos "HTTP/1.1 200 OK"
+21:55:04  INFO       [5/25] session 2324977-62              0 votes  Aprovada a Redação Final assinada pelo Dep. Rui Fa
+21:55:05  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2324977-60/votos "HTTP/1.1 200 OK"
+21:55:05  INFO       [6/25] session 2324977-60              0 votes  Aprovado o Projeto de Decreto Legislativo nº 161, 
+21:55:06  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2335151-35/votos "HTTP/1.1 200 OK"
+21:55:06  INFO       [7/25] session 2335151-35              0 votes  Aprovada a Redação Final assinada pelo relator, De
+21:55:07  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2335151-33/votos "HTTP/1.1 200 OK"
+21:55:07  INFO       [8/25] session 2335151-33              0 votes  Aprovada a Medida Provisória nº 1.138, de 2022.
+21:55:08  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2335151-31/votos "HTTP/1.1 200 OK"
+21:55:08  INFO       [9/25] session 2335151-31              0 votes  Aprovado, em apreciação preliminar, o Parecer da C
+21:55:09  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2335151-30/votos "HTTP/1.1 200 OK"
+21:55:09  INFO       [10/25] session 2335151-30              0 votes  Aprovado, em apreciação preliminar, o Parecer da C
+21:55:10  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2324976-44/votos "HTTP/1.1 200 OK"
+21:55:10  INFO       [11/25] session 2324976-44              0 votes  Aprovada a Redação Final assinada pelo Dep. Rui Fa
+21:55:11  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2324976-42/votos "HTTP/1.1 200 OK"
+21:55:11  INFO       [12/25] session 2324976-42              0 votes  Aprovada a Emenda de Comissão nº 1, de 2022.
+21:55:12  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2324976-40/votos "HTTP/1.1 200 OK"
+21:55:12  INFO       [13/25] session 2324976-40              0 votes  Aprovado o Projeto de Decreto Legislativo nº 160, 
+21:55:13  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2313048-46/votos "HTTP/1.1 200 OK"
+21:55:13  INFO       [14/25] session 2313048-46              0 votes  Aprovada a Redação Final assinada pelo Dep. Rui Fa
+21:55:14  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2313048-44/votos "HTTP/1.1 200 OK"
+21:55:14  INFO       [15/25] session 2313048-44              0 votes  Aprovado o Projeto de Decreto Legislativo nº 1.130
+21:55:15  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2348205-26/votos "HTTP/1.1 200 OK"
+21:55:15  INFO       [16/25] session 2348205-26              0 votes  Realizar o encaminhamento do PRC-15/2023 à CCJC (t
+21:55:16  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2348237-5/votos "HTTP/1.1 200 OK"
+21:55:16  INFO       [17/25] session 2348237-5               0 votes  Aprovado o Requerimento de Urgência (Art. 155 do R
+21:55:17  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2348205-21/votos "HTTP/1.1 200 OK"
+21:55:17  INFO       [18/25] session 2348205-21              0 votes  Aprovada a Redação Final assinada pelo Relator, De
+21:55:18  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2348205-14/votos "HTTP/1.1 200 OK"
+21:55:18  INFO       [19/25] session 2348205-14              0 votes  Aprovado o Substitutivo ao Projeto de Resolução nº
+21:55:19  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2310248-32/votos "HTTP/1.1 200 OK"
+21:55:19  INFO       [20/25] session 2310248-32              0 votes  Aprovada a Redação Final assinada pelo Dep. Rui Fa
+21:55:20  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2310248-30/votos "HTTP/1.1 200 OK"
+21:55:20  INFO       [21/25] session 2310248-30              0 votes  Aprovado o Projeto de Decreto Legislativo nº 1.101
+21:55:21  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2305154-59/votos "HTTP/1.1 200 OK"
+21:55:21  INFO       [22/25] session 2305154-59              0 votes  Aprovada a Redação Final assinada pelo Dep. Rui Fa
+21:55:22  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2305154-57/votos "HTTP/1.1 200 OK"
+21:55:22  INFO       [23/25] session 2305154-57              0 votes  Aprovado o Projeto de Decreto Legislativo nº 930, 
+21:55:23  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2301213-63/votos "HTTP/1.1 200 OK"
+21:55:23  INFO       [24/25] session 2301213-63              0 votes  Aprovada a Redação Final assinada pelo Dep. Rui Fa
+21:55:24  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes/2301213-61/votos "HTTP/1.1 200 OK"
+21:55:24  INFO       [25/25] session 2301213-61              0 votes  Aprovado o Projeto de Decreto Legislativo nº 776, 
+21:55:24  INFO     Fetching sessions for 2023-03-01 → 2023-03-31
+21:55:27  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes?itens=100&dataInicio=2023-03-01&dataFim=2023-03-31&pagina=1 "HTTP/1.1 200 OK"
+21:55:42  WARNING  list_vote_sessions error (attempt 1/3): Câmara API request failed and no cached data available: /votacoes — retrying in 5s
+21:55:48  INFO     HTTP Request: GET https://dadosabertos.camara.leg.br/api/v2/votacoes?itens=100&dataInicio=2023-03-01&dataFim=2023-03-31&pagina=2 "HTTP/1.1 200 OK"

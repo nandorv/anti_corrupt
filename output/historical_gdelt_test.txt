@@ -1,0 +1,31 @@
+20:40:18  INFO     Starting historical ingestion: 5 politicians, sources=['gdelt']
+20:40:18  INFO     Existing news items in DB: 0
+20:40:18  INFO     ============================================================
+20:40:18  INFO     SOURCE: GDELT DOC 2.0 — 5 politicians (last 3 months)
+20:40:18  INFO     ============================================================
+20:40:18  INFO     [1/5] GDELT search: LUIZ INÁCIO LULA DA SILVA
+20:40:46  INFO     HTTP Request: GET https://api.gdeltproject.org/api/v2/doc/doc?query=%22LUIZ+IN%C3%81CIO+LULA+DA+SILVA%22+sourcecountry%3Abrazil+sourcelang%3Aportuguese&mode=artlist&format=json&maxrecords=250&sort=DateDesc "HTTP/1.1 200 OK"
+20:40:46  INFO       → no new results
+20:40:47  INFO     [2/5] GDELT search: NELTER LULA DE QUEIROZ SANTOS
+20:41:11  INFO     HTTP Request: GET https://api.gdeltproject.org/api/v2/doc/doc?query=%22NELTER+LULA+DE+QUEIROZ+SANTOS%22+sourcecountry%3Abrazil+sourcelang%3Aportuguese&mode=artlist&format=json&maxrecords=250&sort=DateDesc "HTTP/1.1 200 OK"
+20:41:11  INFO       → no new results
+20:41:12  INFO     [3/5] GDELT search: CARLOS EDUARDO DE OLIVEIRA LULA
+20:41:45  WARNING  GDELT timeout for CARLOS EDUARDO DE OLIVEIRA LULA
+20:41:45  INFO       → no new results
+20:41:46  INFO     [4/5] GDELT search: JOSE ENILSON ASSUNÇAO DE MELO LULA
+20:42:16  INFO     HTTP Request: GET https://api.gdeltproject.org/api/v2/doc/doc?query=%22JOSE+ENILSON+ASSUN%C3%87AO+DE+MELO+LULA%22+sourcecountry%3Abrazil+sourcelang%3Aportuguese&mode=artlist&format=json&maxrecords=250&sort=DateDesc "HTTP/1.1 200 OK"
+20:42:16  INFO       → no new results
+20:42:17  INFO     [5/5] GDELT search: LUIZ LULA DUARTE FERREIRA
+20:42:47  WARNING  GDELT timeout for LUIZ LULA DUARTE FERREIRA
+20:42:47  INFO       → no new results
+20:42:49  INFO     GDELT total: 0 new items
+20:42:49  INFO     ============================================================
+20:42:49  INFO     DONE in 2.5 min
+20:42:49  INFO       gdelt: 0 new items
+20:42:49  INFO     Total news items in DB: 0
+20:42:49  INFO     ============================================================
+
+=================================================================
+  HISTORICAL NEWS — 0 items in DB
+=================================================================
+

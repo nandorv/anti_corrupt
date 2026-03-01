@@ -185,17 +185,23 @@ class CamaraAPI:
         end_date: Optional[str] = None,
         force_refresh: bool = False,
     ) -> list[dict]:
-        """Get voting history for a deputy (dataInicio/dataFim as YYYY-MM-DD)."""
-        params: dict = {"itens": 200, "ordem": "DESC", "ordenarPor": "dataHoraVoto"}
-        if start_date:
-            params["dataInicio"] = start_date
-        if end_date:
-            params["dataFim"] = end_date
-        return self._fetch(
-            f"/deputados/{deputy_id}/votacoes",
-            params=params,
-            force_refresh=force_refresh,
-        ) or []
+        """
+        .. deprecated::
+            The Câmara API does **not** expose a per-deputy vote history endpoint
+            (``/deputados/{id}/votacoes`` returns 405).  Use the session-centric
+            approach instead:
+
+            1. ``list_vote_sessions(start_date, end_date)``  →  session IDs
+            2. ``get_session_votes(session_id)``             →  all deputies' votes
+
+        This method is kept for backward-compatibility but always returns [].
+        """
+        logger.warning(
+            "get_deputy_votes() called for deputy %d — this endpoint does not exist "
+            "in the Câmara API.  Use list_vote_sessions() + get_session_votes() instead.",
+            deputy_id,
+        )
+        return []
 
     def fetch_current_deputies(self, legislature: int = 57) -> list[Politician]:
         """
@@ -257,13 +263,44 @@ class CamaraAPI:
         end_date: Optional[str] = None,
         force_refresh: bool = False,
     ) -> list[dict]:
-        """List recent voting sessions."""
-        params: dict = {"itens": 100, "ordem": "DESC", "ordenarPor": "dataHoraVoto"}
+        """
+        List all voting sessions in a date range, fully paginated.
+
+        Each session dict contains:
+          id, data, dataHoraRegistro, siglaOrgao, uriOrgao,
+          uriEvento, proposicaoObjeto, uriProposicaoObjeto,
+          descricao, aprovacao
+
+        Args:
+            start_date: ``YYYY-MM-DD`` filter start (inclusive)
+            end_date:   ``YYYY-MM-DD`` filter end (inclusive)
+
+        Returns all sessions in the range (may be hundreds for a full month).
+        """
+        params: dict = {"itens": 100}
         if start_date:
             params["dataInicio"] = start_date
         if end_date:
             params["dataFim"] = end_date
-        return self._fetch("/votacoes", params=params, force_refresh=force_refresh) or []
+
+        results: list[dict] = []
+        page = 1
+        while True:
+            params["pagina"] = page
+            page_data = self._fetch(
+                "/votacoes", params=dict(params), force_refresh=force_refresh
+            )
+            if not page_data:
+                break
+            if isinstance(page_data, list):
+                results.extend(page_data)
+                if len(page_data) < 100:
+                    break
+            else:
+                break
+            page += 1
+
+        return results
 
     # ------------------------------------------------------------------
     # Propositions (bills)

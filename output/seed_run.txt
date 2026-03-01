@@ -1,0 +1,79 @@
+============================================================
+ANTI-CORRUPT — Historical DB Seeding
+============================================================
+DB: output/history.db
+Pre-seed stats: {'politicians': 2555, 'historical_events': 764, 'votes': 0, 'election_results': 0, 'expenses': 0, 'legislatures': 11}
+
+Clearing existing data for fresh seed...
+Cleared. Stats now: {'politicians': 0, 'historical_events': 0, 'votes': 0, 'election_results': 0, 'expenses': 0, 'legislatures': 0}
+
+  ⏳ Fetching Federal Deputies  (2023+, current)... ✓ 556 records saved
+  ⏳ Fetching Senators          (2019+, current)... ✓ 265 records saved
+  ⏳ Fetching Governors         (2023+, current)... ✓ 94 records saved
+  ⏳ Fetching Mayors            (2024+, current)... ✓ 1446 records saved
+  ⏳ Fetching Presidents        (all time)... ✓ 53 records saved
+  ⏳ Fetching STF Ministers     (all time)... ✓ 45 records saved
+  ⏳ Fetching Gov Ministers     (all time)... ✓ 488 records saved
+  ⏳ Fetching TCU Ministers     (all time)... ✓ 8 records saved
+  ⏳ Fetching Political Events  (all history)... ✓ 764 records saved
+  ⏳ Fetching Legislatures... ✓ 11 records saved
+
+============================================================
+FINAL STATS:
+  politicians                2,555
+  historical_events            764
+  votes                          0
+  election_results               0
+  expenses                       0
+  legislatures                  11
+============================================================
+
+Sample by category:
+
+  ✓ [deputado-federal] → 250 total  (expected ≥225)
+      Adriana Borgo                        Partido Republicano da Ordem Social  política brasileira
+      Adriana Ferreira da Silva            Partido Socialismo e Liberdade  política brasileira
+      Adriana Ramalho                      —                política brasileira
+
+  ✓ [senador] → 233 total  (expected ≥40)
+      Adérmis Marini                       —                político brasileiro
+      Alexandre Figueiredo                 —                político brasileiro
+      Amilcar Lobo Moreira                 —                
+
+  ✓ [governador] → 76 total  (expected ≥13)
+      Galdino Teixeira de Barros Loreto    —                
+      Teodorico Gaíva                      —                
+      Abreu Sodré                          União Democrática Nacional  47⁰ Governador do Estado de São Paulo e Ministro das Relaçõe
+
+  ✓ [prefeito] → 1428 total  (expected ≥1000)
+      Chico Doido                          —                
+      Iutaka Iamashita                     —                
+      Abel Coimbra Ramos                   —                político brasileiro
+
+  ✓ [presidente] → 44 total  (expected ≥5)
+      Prudente de Morais                   Partido Republicano Paulista  3.º presidente do Brasil (1894–1898)
+      Francisco Gros                       —                economista brasileiro, ex presidente do Banco Central do Bra
+      Afonso Pena                          Partido Liberal  6.º presidente do Brasil (1906–1909)
+
+  ✓ [stf] → 31 total  (expected ≥20)
+      Carlos Alberto Madeira               —                jurista brasileiro, Ex-ministro do Supremo Tribunal Federal
+      Teori Zavascki                       —                magistrado brasileiro, Ministro do Supremo Tribunal Federal 
+      Joaquim Barbosa                      Partido Socialista Brasileiro  jurista e advogado brasileiro, ex-ministro do Supremo Tribun
+
+  ✓ [ministro] → 516 total  (expected ≥50)
+      Carlos Alberto Madeira               —                jurista brasileiro, Ex-ministro do Supremo Tribunal Federal
+      Teori Zavascki                       —                magistrado brasileiro, Ministro do Supremo Tribunal Federal 
+      Joaquim Barbosa                      Partido Socialista Brasileiro  jurista e advogado brasileiro, ex-ministro do Supremo Tribun
+
+  ✓ [tcu] → 8 total  (expected ≥5)
+      Agenor Lafayette de Roure            —                político brasileiro
+      Aroldo Cedraz                        Democratas       médico veterinário e político brasileiro
+      Aurelino Leal                        —                advogado, jornalista e político brasileiro, presidente do es
+
+Sample events (most recent 5):
+  [election] 2025-02-01  Eleição para mesa diretora da Câmara dos Deputados do Brasil
+  [election] 2024-10-27  Eleição municipal de Belém em 2024
+    → Parte das Eleições Municipais de 2024
+  [election] 2024-10-27  Eleição municipal de Camaçari em 2024
+  [election] 2024-10-27  Eleição municipal de Aracaju em 2024
+  [election] 2024-10-27  Eleições municipais de Campo Grande em 2024

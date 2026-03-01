@@ -2,10 +2,10 @@
 
 ## Complete Project Plan & Technical Blueprint
 
-**Version:** 1.0
-**Date:** February 23, 2026
-**Status:** Planning
-**Primary Language:** Python 3.11+
+**Version:** 2.0
+**Date:** March 1, 2026
+**Status:** Active Development — Phases 0–2 complete, data pipeline live
+**Primary Language:** Python 3.11+ (deployed on Python 3.12 ARM server)
 **Target Region:** Brazil (Phase 1)
 
 ---
@@ -520,8 +520,9 @@ anticorrupt dashboard                      # Show stats overview
 
 **Goal:** Set up the project skeleton, knowledge base schemas, and basic tooling so everything that follows has a solid base.
 
-**Duration:** 1-2 days
-**Outcome:** A working project you can `git init`, install dependencies, validate data, and run basic CLI commands.
+**Status: ✅ COMPLETE**  
+**Duration:** 1-2 days  
+**Outcome:** Working project with full directory structure, Pydantic models, YAML schemas, data loader, validator, CLI skeleton, tests.
 
 ### 4.1 Tasks
 
@@ -541,12 +542,12 @@ anticorrupt dashboard                      # Show stats overview
 
 ### 4.2 Acceptance Criteria
 
-- [ ] `uv run anticorrupt kb validate` — validates all YAML files and reports errors
-- [ ] `uv run anticorrupt kb search "STF"` — finds the institution
-- [ ] `uv run anticorrupt kb graph --entity stf` — shows connected entities
-- [ ] All seed data passes validation
-- [ ] `pytest` runs with >90% pass rate
-- [ ] `ruff check` and `mypy` pass clean
+- [x] `uv run anticorrupt kb validate` — validates all YAML files and reports errors
+- [x] `uv run anticorrupt kb search "STF"` — finds the institution
+- [x] `uv run anticorrupt kb graph --entity stf` — shows connected entities
+- [x] All seed data passes validation
+- [x] `pytest` runs with >90% pass rate
+- [x] `ruff check` and `mypy` pass clean
 
 ---
 
@@ -554,7 +555,8 @@ anticorrupt dashboard                      # Show stats overview
 
 **Goal:** Build the end-to-end flow from news ingestion to AI-generated drafts ready for human review.
 
-**Duration:** 1-2 weeks
+**Status: ✅ COMPLETE**  
+**Duration:** 1-2 weeks  
 **Depends on:** Phase 0
 
 ### 5.1 Tasks
@@ -620,7 +622,13 @@ anticorrupt dashboard                      # Show stats overview
 **Goal:** Programmatically create social media-ready images from content and knowledge base data.
 Also: build a caching layer over public government APIs so we own our data and are not dependent on third-party availability.
 
-**Duration:** 1-2 weeks
+**Status: 🔄 PARTIALLY COMPLETE**  
+- ✅ API cache layer (`src/sources/cache.py`), Câmara + Senado + TSE API clients  
+- ✅ All visuals modules built (`carousel`, `profiles`, `timelines`, `diagrams`, `network`)  
+- ✅ DB seeded: 13,724 politicians, 171,321 expenses, 16,502 companies, 22,338 cabinet staff  
+- ❌ Historical news ingestion (`scripts/ingest_historical.py`) — APIs returning 0 results; needs fix  
+
+**Duration:** 1-2 weeks  
 **Depends on:** Phase 1
 
 ### 6.0 Data Resilience & Source Caching
@@ -724,7 +732,8 @@ Each institution type gets a consistent color:
 
 **Goal:** Automate the posting process and build scheduling capabilities.
 
-**Duration:** 1 week
+**Status: ⏸ BLOCKED** — code exists but cannot be tested until `news_items` table is populated (depends on fixing historical ingest).  
+**Duration:** 1 week  
 **Depends on:** Phase 2
 
 ### 7.1 Instagram Publishing
@@ -845,7 +854,7 @@ schedule:
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Clone and setup
-git clone <repo-url>
+git clone https://github.com/nandorv/anti_corrupt.git
 cd anti_corrupt
 uv sync                        # Install all dependencies
 cp .env.example .env           # Set up environment variables
@@ -856,7 +865,33 @@ uv run pytest                  # Tests
 uv run ruff check .            # Lint
 ```
 
-### 10.2 Environment Variables
+### 10.2 Production Server (Frankfurt)
+
+```
+Host:     frankfurt (158.101.171.79)
+User:     ubuntu
+SSH key:  ~/.ssh/ssh-key-2026-02-28.key
+Arch:     aarch64 ARM (Oracle Cloud)
+Disk:     190GB free
+OS:       Ubuntu
+Python:   3.12 venv at ~/anti_corrupt_code/.venv/
+Code:     ~/anti_corrupt_code/ (git clone, always git pull to update)
+DBs:      ~/anti_corrupt_code/output/history.db (71MB), api_cache.db (97MB)
+```
+
+```bash
+# Deploy latest code to Frankfurt
+git push origin main
+ssh frankfurt "cd ~/anti_corrupt_code && git pull"
+
+# Sync DB from Frankfurt back to local
+rsync -avz frankfurt:~/anti_corrupt_code/output/history.db output/
+
+# Run a script on Frankfurt in background
+ssh frankfurt "cd ~/anti_corrupt_code && tmux new -d -s ingest '.venv/bin/python scripts/ingest_historical.py --notable'"
+```
+
+### 10.3 Environment Variables
 
 ```bash
 # .env.example
@@ -873,7 +908,7 @@ OUTPUT_DIR=./output                 # Generated content location
 LOG_LEVEL=INFO
 ```
 
-### 10.3 CI/CD (Future)
+### 10.4 CI/CD (Future)
 
 - **GitHub Actions** for:
   - Run tests on every push
@@ -998,18 +1033,33 @@ Built into the AI pipeline:
 
 ---
 
-## Next Steps
+## Current Status (March 1, 2026)
 
-**Ready to begin Phase 0.** In the next command, we will:
+### ✅ What's built and working
+- Full project structure: `src/`, `scripts/`, `config/`, `data/`, `tests/`, `output/`
+- All 52 Python source files across `ai/`, `cli/`, `content/`, `history/`, `knowledge/`, `publish/`, `sources/`, `visuals/`
+- SQLite database (`output/history.db`) seeded with:
+  - 13,724 politicians (deputies, senators, STF, STJ, ministers)
+  - 171,321 CEAP expense rows (2023–2026)
+  - 16,502 companies (CNPJ-enriched with fraud signals)
+  - 4,996 votes, 12,820 election results, 22,338 cabinet staff
+- Frankfurt server fully provisioned (code + DBs + venv)
+- React Flow pipeline visualization at `output/project-viz/`
 
-1. Initialize the Python project with `pyproject.toml`
-2. Create the full directory structure
-3. Implement Pydantic models for all entity types
-4. Build the YAML data loader and validator
-5. Seed the knowledge base with initial Brazilian institutions and figures
-6. Build the relationship graph engine
-7. Create the CLI skeleton
-8. Set up testing and dev tooling
+### ❌ What's broken
+- `scripts/ingest_historical.py` — ran 1,307 politicians, saved **0 news items**
+- Root cause: GDELT + Wayback CDX + Querido Diário APIs return nothing from local network
+- `news_items` table is empty → AI content pipeline has no input → can't test downstream
+
+### 🔜 Immediate next actions (in order)
+
+1. **Fix news ingestion** — test each API from Frankfurt server, confirm what works
+2. **Populate `news_items`** — via RSS (reliable) or whichever API works from Frankfurt
+3. **Test AI pipeline** — summarizer → review queue → visuals → publish (end-to-end)
+4. **Add CGU sanction lists** — match against expenses + politicians (instant fraud signal)
+5. **Run nepotism + shared supplier analysis** — data is all in DB, just needs queries
+6. **Add TSE Bens (declared assets)** — unexplained enrichment signal
+7. **Build NetworkX graph** — follow-the-money query templates
 
 ---
 

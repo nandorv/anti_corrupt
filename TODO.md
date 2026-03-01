@@ -1,181 +1,168 @@
 # Anti-Corrupt — TODO
 
-> **Context:** @brunoclz went viral (4.1M views) on Feb 21 2026 connecting 79 Brazilian open databases via CPF/CNPJ in a Neo4j graph. He validated the exact thesis of this project. Items marked 🔥 are stolen or inspired by his approach.
+> **Updated:** March 1, 2026  
+> **Context:** @brunoclz went viral (4.1M views) on Feb 21 2026 connecting 79 Brazilian open databases via CPF/CNPJ. He validated the exact thesis of this project. Items marked 🔥 are inspired by his approach.
 
 ---
 
-## 🔥 High-Priority Steals (from brunoclz's 79-database approach)
+## 🔴 BLOCKING — Fix Historical News Ingestion
 
-- [ ] **CGU sanction lists** — tiny datasets, instant anti-corruption signal 🔥
-  - CEIS: companies/people sanctioned by federal government
-  - CNEP: companies penalized for corruption, fraud, cartels
-  - CEPIM: NGOs blocked from federal transfers
-  - CEAF: civil servants expelled for misconduct
-  - Source: `https://api.portaldatransparencia.gov.br/api-de-dados/` (free, key required)
-  - Match CPF/CNPJ from our expenses + politicians against all four lists
-  - One hit = instant red flag; no analysis needed
+`scripts/ingest_historical.py` ran for hours against all 1,307 politicians and saved **0 news items**.
+Root cause: GDELT, Wayback CDX, and Querido Diário APIs are either timing out or returning nothing from the local machine. Work continues on the Frankfurt server where the network is different.
 
-- [ ] **TSE Bens (declared assets)** — politicians' declared wealth at candidacy 🔥
+- [ ] **Test each API from Frankfurt server** (different network, no ISP blocks)
+  - GDELT: `"Lula" sourcecountry:brazil sourcelang:portuguese` → expect articles
+  - Wayback CDX: `url=g1.globo.com/politica/*&filter=original:.*lula.*` → expect JSON rows
+  - Querido Diário: full-text search endpoint → may need API key (returned 403 locally)
+  - Use: `cd ~/anti_corrupt_code && .venv/bin/python output/test_apis.py`
+
+- [ ] **Switch primary source to RSS feeds** (more reliable than CDX for recent news)
+  - `scripts/ingest_rss.py` already exists — test on Frankfurt first
+  - RSS never blocked: Agência Brasil, G1, Folha, Estadão, Poder360, Congresso em Foco
+  - Populate `news_items` via RSS first, augment with CDX/GDELT later
+
+- [ ] **Wayback CDX: reconsider slug strategy**
+  - Per-politician slugs like `joao.+silva` match nothing — too many deputies have generic names
+  - Better: use keyword mode (`--keywords` flag) — searches for `corrupcao`, `lava-jato`, etc. across all domains
+  - Test keyword mode separately: `python scripts/ingest_historical.py --keywords --source wayback`
+
+- [ ] **Querido Diário: verify API access**
+  - May require API key or IP allowlist — check `https://queridodiario.ok.org.br/api/docs`
+
+- [ ] **Re-run ingest on Frankfurt once a working source is confirmed**
+  - Start small: `python scripts/ingest_historical.py --notable --source gdelt`
+  - Then expand: `python scripts/ingest_historical.py --all --source wayback --keywords`
+
+---
+
+## 🔥 High-Value Data Enrichment
+
+### Cross-reference signals
+
+- [ ] **CGU sanction lists** 🔥 — instant anti-corruption signal, no AI needed
+  - CEIS, CNEP, CEPIM, CEAF via `https://api.portaldatransparencia.gov.br/api-de-dados/` (key required)
+  - Match expense supplier CNPJs against CEIS/CNEP → flagged companies
+  - Match politician CPFs against CEAF → expelled civil servants
+  - Add `sanctioned: bool`, `sanction_list: str` fields to `companies` table
+
+- [ ] **TSE Bens (declared assets)** 🔥
   - Source: `https://dadosabertos.tse.jus.br/dataset/bem-de-candidatos`
-  - Fields: candidato CPF, bem_descricao, bem_valor, ano
-  - Key signal: compare wealth declared in 2018 vs 2022 vs 2026 → unexplained enrichment
-  - Already have CPF in our `politicians` table → direct join
+  - Import declared wealth per politician per election year (2018, 2022, 2026)
+  - Signal: compare year-over-year → unexplained enrichment
+  - New table: `declared_assets(politician_id, year, category, value_brl)`
 
-- [ ] **CNPJ/QSA enrichment** — who owns the companies receiving CEAP money 🔥
-  - Source API: `https://brasilapi.com.br/api/cnpj/v1/{cnpj}` (free, no auth)
-  - Fields returned: `razao_social`, `socios` (owners with CPF), `atividade_principal`, `situacao_cadastral`, `data_abertura`
-  - Plan: `output/lookup_cnpj.py` → `CompanyProfile` model, table `companies`
-  - **The core cross-reference:** company owner CPF → matches politician CPF → self-dealing confirmed
-  - Also flags: company opened <6 months before first expense → likely shell; `situacao_cadastral = INAPTA` → ghost supplier
+- [ ] **TSE Donation cross-reference** 🔥
+  - `prestacao_contas` CSVs: CNPJs of companies that donated to campaigns
+  - Pattern: company gets CEAP money from deputy A AND donated to deputy A's campaign
+  - Source: `https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-eleitorais`
 
-- [ ] **ComprasNet / PNCP (federal procurement)** — government contracts by CNPJ 🔥
-  - Source: `https://pncp.gov.br/api/pncp/v1/` or `https://compras.dados.gov.br/`
-  - Match supplier CNPJs from CEAP expenses against winners of federal contracts
-  - Pattern: same company milks both CEAP (office expenses) AND federal contracts
+- [ ] **CNPJ owner CPF cross-reference** 🔥
+  - BrasilAPI returns `socios[].cpf_representante_legal` per CNPJ
+  - Match owner CPFs against politician CPFs in DB
+  - Self-dealing confirmation: politician → CEAP expense → company owned by politician
+  - `output/lookup_cnpj.py` already partially exists
 
-- [ ] **Portal da Transparência — Servidores** — federal payroll 🔥
-  - Source: `https://api.portaldatransparencia.gov.br/api-de-dados/servidores`
-  - Match staff names from our `cabinet_staff` table against federal payroll
-  - Detect double-dipping: a "parliamentary secretary" who is also on federal payroll
+- [ ] **ComprasNet / PNCP (federal procurement)** 🔥
+  - Match supplier CNPJs from CEAP expenses against federal contract winners
+  - Same company milks CEAP *and* federal contracts = major red flag
+  - Source: `https://pncp.gov.br/api/pncp/v1/`
 
-- [ ] **DataJud / CNJ — judicial records** — ongoing cases per politician 🔥
-  - Source: `https://dadosabertos.cnj.jus.br/`
-  - Link politician CPF to active criminal/civil proceedings
-  - Especially relevant for STJ/STF cases (foro privilegiado)
+- [ ] **Portal da Transparência — Servidores**
+  - Match `cabinet_staff.staff_name` against federal payroll
+  - Detect double-dipping: "parliamentary secretary" also on federal payroll
 
----
+### Analysis (no new data needed — all in DB already)
 
-## 📰 News & Intelligence
-
-### RSS / Recent News (real-time layer)
-
-- [ ] **RSS feed ingestion pipeline** — pull current news into the content pipeline
-  - Sources to monitor:
-    - Agência Brasil: `https://agenciabrasil.ebc.com.br/rss/politica/feed.xml`
-    - G1 Política: `https://g1.globo.com/rss/g1/politica/`
-    - Folha de S.Paulo: `https://feeds.folha.uol.com.br/poder/rss091.xml`
-    - UOL Política: `https://rss.uol.com.br/feed/noticias/noticias/politica.xml`
-    - Estadão Política: `https://www.estadao.com.br/rss/politica.xml`
-    - Metrópoles: `https://www.metropoles.com/feed/`
-    - Poder360: `https://www.poder360.com.br/feed/`
-  - Implementation: `scripts/ingest_rss.py` — poll every 6h, deduplicate by URL hash
-  - Model: `NewsItem` (url, title, summary, published_at, source, politician_mentions[])
-  - Entity linking: scan title+summary for politician names in DB → create `mentions` join table
-  - Use case: "show me all news mentioning [politician] in the last 30 days" → feeds the AI content pipeline
-
-- [ ] **Querido Diário — official gazette NLP** 🔥
-  - Source: `https://queridodiario.ok.org.br/api/` (Serenata de Amor / Open Knowledge)
-  - Structured access to DOUs + DOEs with full-text search
-  - Query by politician name → find appointments, contracts, penalties, nominations
-  - Historical depth: covers gazettes back to 2000s for many states
-  - Use case: find when a supplier company got first federal/state contract → correlate with politician career timeline
-
-- [ ] **DOU (Diário Oficial da União) direct** — appointments and contracts 🔥
-  - Source: `https://www.in.gov.br/servicos/buscar-diario-oficial` or `https://inlabs.in.gov.br/`
-  - Monitor for: new CNPJ contracts, politician appointments, sanctioned entities
-  - Trigger: when a known CNPJ (from our `companies` table) appears in DOU → flag for review
-
-### Historical News Archive
-
-- [ ] **News archive ingestion** — get pre-2024 coverage into our knowledge base
-  - **Approach 1 — Common Crawl:** free, petabytes of web archive; filter `.br` domains by politician name/CPF
-    - API: `https://index.commoncrawl.org/` — returns CDX records for a given URL pattern
-    - Use case: find old Folha/Estadão articles about a politician that are no longer on their live site
-  - **Approach 2 — Wayback Machine CDX API:** `http://web.archive.org/cdx/search/cdx?url=*.folha.uol.com.br/*lula*`
-    - Free, rate-limited; returns snapshots of specific URLs
-    - Good for recovering deleted articles (e.g. retracted corruption stories)
-  - **Approach 3 — Serenata de Amor dataset:** pre-labeled CEAP suspicious transactions 2009–2017
-    - `https://github.com/okfn-brasil/serenata-de-amor` — already processed, labeled, with news links
-    - Import their flags into our DB as a historical baseline
-  - **Approach 4 — Archive.org bulk download per politician:**
-    - Script: for each politician in DB → query Wayback CDX for name → collect article URLs → fetch + store summaries
-    - Cache in `api_cache.db` to avoid re-fetching; attach to politician profile as `historical_coverage`
-  - Priority: Serenata de Amor dataset first (already labeled), then Querido Diário, then Wayback CDX
-
-- [ ] **Wikipedia / Wikidata scrape for historical bios**
-  - Already partially done (Wikidata explored in past session)
-  - Wikidata SPARQL: `https://query.wikidata.org/sparql` — get birth date, party history, notable events per politician
-  - Use case: fill historical gaps in politician profiles that predate our TSE data (e.g. pre-2022 mandates)
+- [ ] **Nepotism detector** — surname match between `cabinet_staff` and their linked deputy
+- [ ] **Shared supplier cross-deputy map** — `shared_supplier=588` already flagged; map which deputies share each supplier
+- [ ] **Ghost supplier list** — `inactive=369` companies; cross with CGU lists once loaded
+- [ ] **Shell company signals** — company opened <6 months before first CEAP payment
 
 ---
 
 ## 🕸 Graph Layer
 
-> **Is Neo4j worth it for us?** Bruno needed it because he's connecting 79 databases with complex multi-hop queries at scale (128GB RAM server). Our goals are different — we're building a *content + investigation tool*, not a raw query engine. The answer is: **not Neo4j, but yes to a lightweight graph layer.**
+No Neo4j needed — our scale fits in SQLite + NetworkX (sub-second queries for our data size).
 
-- [ ] **Relationship graph with NetworkX (analysis layer)**
-  - Add `output/build_graph.py` — export DB relationships into a NetworkX DiGraph:
-    - Nodes: politicians, companies, staff, institutions
-    - Edges: `PAID_TO` (expense → company), `OWNS` (company → politician CPF match), `DONATED_TO` (company → politician campaign), `WORKS_FOR` (staff → deputy), `RELATED_TO` (same surname → nepotism flag)
-  - Use for: shortest path queries ("how is politician A connected to company X?"), centrality analysis ("which companies appear most across multiple deputies?"), cluster detection ("which deputies share the same suppliers?")
-  - Output: JSON graph data → feeds `src/visuals/` for relationship diagrams in published content
-  - **Does NOT need a separate DB** — NetworkX loads from SQLite at query time; sub-second for our scale
+- [ ] **Build NetworkX graph from DB** (`output/build_graph.py`)
+  - Nodes: politicians, companies, staff, institutions
+  - Edges: `PAID_TO`, `OWNS` (when CPF match found), `DONATED_TO`, `WORKS_FOR`, `SHARED_SUPPLIER`
+  - Export as JSON → feed into React Flow or `src/visuals/network.py`
 
-- [ ] **Graph visualization for content pipeline**
-  - Generate per-politician relationship SVGs/PNGs using `pyvis` or `graphviz`
-  - Example: "Fernando's network" — shows all companies paid by his CEAP, flagged ones in red, shared suppliers with other deputies highlighted
-  - Export as static images for articles/posts (feeds `src/visuals/`)
+- [ ] **`src/knowledge/follow_money.py`** — 3–4 canned SQL CTE investigative queries:
+  - politician → expenses → companies → owners → check if owner CPF = politician CPF
+  - politician → cabinet staff → surname match → nepotism flag
+  - company → all deputies who paid it → total received → rank by amount
 
-- [ ] **Recursive SQL queries for multi-hop follow-the-money**
-  - SQLite supports CTEs including recursive ones — no graph DB needed for 2-3 hop queries
-  - Example query: politician → expenses → CNPJ → QSA owners → check if owner CPF = any politician CPF
-  - Implement as `src/knowledge/follow_money.py` with 3-4 canned investigative query templates
+- [ ] **Per-politician network image** — generate for top 20 notable politicians
+  - Flagged companies in red, shared suppliers highlighted
+  - Export as PNG for content pipeline
 
 ---
 
-## Data Collection
+## 🟢 Infrastructure
 
-- [ ] **Full expense scrape** — all 632 deputies × 4 years (2023–2026)
-  - `output/seed_deputies.py --expenses-only --start-year 2023 --end-year 2026 --resume`
-  - Est. ~50 min, ~650k rows, ~260 MB
+- [ ] **Create `.env` on Frankfurt server** — without this AI pipeline cannot run remotely
+  - `ssh frankfurt "cat > ~/anti_corrupt_code/.env"` then paste keys
+  - Minimum: `ANTHROPIC_API_KEY`, `OUTPUT_DIR=output`
 
-- [ ] **Full vote scrape** — all sessions 2023–2026
-  - `output/seed_deputies.py --votes-only --start-year 2023 --end-year 2026 --resume`
-  - Est. ~40–60 min, ~200k rows, ~70 MB
+- [ ] **DB indexes** on hot query columns
+  - `expenses(supplier_cnpj_cpf)`, `expenses(deputy_camara_id, year)`
+  - `news_items(published_at)`, `votes(deputy_camara_id, date)`
 
-- [x] **Cabinet staff (secretários parlamentares)**
-  - Source: Câmara `funcionarios.json` bulk file (all 14,995 Câmara staff, filtered to `codGrupo=6` + `2` linked to deputies)
-  - Model: `CabinetStaff` in `src/history/models.py`, table `cabinet_staff` in store
-  - Script: `output/seed_secretarios.py` — each run creates a new snapshot tagged with `YYYY-MM` (old snapshots preserved for turnover tracking)
-  - **Re-run every 6 months** — `--force` overwrites current month's snapshot only; prior months remain intact
-  - Snapshots enable: "who was in this cabinet in Feb 2026 but not in Aug 2026?" → churned staff
-  - Fields: `deputy_camara_id`, `staff_name`, `role`, `start_date`, `legislature`, `snapshot_month`
-  - Anti-corruption angles:
-    - Matching surnames between staff and deputy → nepotism flag
-    - Same staff in multiple deputies' cabinets in same snapshot → ghost employee
-    - Staff who later appear as CEAP expense suppliers → revolving door
-    - High turnover between snapshots → possible political pressure / instability
+- [ ] **Incremental daily refresh** (`scripts/refresh_daily.py`)
+  - Expenses: 1st of month, re-fetch last 2 months per deputy
+  - Votes: Mon–Fri, fetch yesterday's sessions
+  - RSS: every 6h
+  - Deploy as cron on Frankfurt: `0 6 1 * *` (expenses), `0 */6 * * *` (RSS)
+
+- [ ] **Sync DB from Frankfurt → local** after remote ingest runs
+  - `rsync -avz frankfurt:~/anti_corrupt_code/output/history.db output/`
+  - Add as `make sync-db` in Makefile
 
 ---
 
-## Analysis / Cross-Reference
+## 🔵 Content Pipeline (built, needs real data to test)
 
-- [ ] **TSE donation cross-reference** — match expense suppliers against political donors
-  - TSE publishes `prestacao_contas` CSVs with CNPJ of donors to campaigns
-  - Classic pattern: company receives CEAP money from deputy A, same company donated to deputy A's campaign
-  - Source: `https://dadosabertos.tse.jus.br/dataset/prestacao-de-contas-eleitorais`
+Once `news_items` has data, validate each step:
 
-- [ ] **Nepotism detector** — surname matching between cabinet staff and deputy
-  - Already have the data; just needs a query: compare last word of `staff_name` against last word of deputy `name`
-  - Brazilian convention: last surname is family name → high confidence match
-  - Output: flagged list for manual review or auto-tagging
-
-- [ ] **Ghost supplier detector** — companies that appear in multiple deputies' CEAP but have no web presence
-  - Signals: `situacao_cadastral = INAPTA`, zero employees (RAIS), registered <6 months before first CEAP payment
-  - Cross-reference with CGU sanction lists (CEIS/CNEP)
+- [ ] **RSS ingestion end-to-end** — run `scripts/ingest_rss.py`, check `news_items` count
+- [ ] **AI summarizer** — `anticorrupt generate summarize` on a real news item
+- [ ] **AI explainer** — `anticorrupt generate explainer --topic "como funciona o impeachment"`
+- [ ] **Review queue** — `anticorrupt review list` → `show` → `approve`
+- [ ] **Visuals** — `anticorrupt visuals generate <draft-id>` → verify PNG in `output/images/`
+- [ ] **Publishing** — Instagram + Twitter credentials in `.env` → `anticorrupt publish preview`
 
 ---
 
-## Infrastructure
+## 📰 Future Sources
 
-- [ ] **Incremental daily refresh script**
-  - Votes: Mon–Fri only, fetch yesterday's sessions (check `periodoEmExercicio` to skip recess)
-  - Expenses: 1st of month only, re-fetch last 2 months per deputy (covers late submissions)
-  - RSS feeds: every 6h via `scripts/ingest_rss.py`
-  - Implementation: `scripts/refresh_daily.py` with a cron entry or launchd plist
+- [ ] **DataJud / CNJ — judicial records** 🔥
+  - Link politician CPF to active criminal/civil proceedings
+  - Source: `https://dadosabertos.cnj.jus.br/`
 
-- [ ] **Indexes** on hot query columns
-  - `expenses(supplier_cnpj_cpf)` — for CNPJ lookups
-  - `expenses(deputy_camara_id, year)` — for per-deputy queries
-  - `votes(deputy_camara_id, date)` — for timeline queries
-  - `news_items(published_at)`, `news_items(politician_id)` — for feed queries
+- [ ] **DOU (Diário Oficial da União)** — monitor for new contracts by known CNPJs
+  - Source: `https://inlabs.in.gov.br/`
+
+- [ ] **Serenata de Amor dataset** — pre-labeled CEAP suspicious transactions 2009–2017
+  - Import as historical baseline: `https://github.com/okfn-brasil/serenata-de-amor`
+
+- [ ] **Wikipedia / Wikidata** — `src/sources/wikidata.py` exists, finish and run for all politicians
+
+---
+
+## ✅ Completed
+
+- [x] **Phase 0** — project structure, Pydantic models, YAML schemas, CLI skeleton, dev tooling, tests
+- [x] **Phase 1** — AI summarizer, explainer, content queue, review CLI, generate CLI, formatter
+- [x] **Phase 2** — API cache layer, Câmara/Senado API clients, TSE client, all visuals modules, RSS, scraper
+- [x] **DB: politicians** — 13,724 (deputies, senators, STF, STJ, ministers, cabinet heads)
+- [x] **DB: expenses** — 171,321 CEAP rows, 2023–2026, all 632 deputies
+- [x] **DB: companies** — 16,502 CNPJs enriched (shared_supplier=588, high_value=546, inactive=369)
+- [x] **DB: votes** — 4,996 vote records
+- [x] **DB: election results** — 12,820 rows (TSE 2022/2024)
+- [x] **DB: cabinet staff** — 22,338 secretários parlamentares snapshot
+- [x] **Git history cleaned** — large files (243MB CSV, 182MB txt, 102MB DB) stripped
+- [x] **Frankfurt server** — ubuntu@158.101.171.79, aarch64, Python 3.12 venv, full git clone, all DBs synced
+- [x] **React Flow viz** — 47-node pipeline diagram at `output/project-viz/`
+- [x] **.gitignore** — `eleicoes/*.csv`, `eleicoes/*.zip`, `data/rf/` excluded
